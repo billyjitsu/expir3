@@ -22,6 +22,10 @@ contract Expir3 is Ownable {
     mapping(address => uint256) public lastCheckin;
 
     // map who you want to benefit
+    // mapping (address => address) public recipients;
+
+    // map address to deadmans
+    // mapping (address => boolean) pubic switch;
 
     constructor(address _token){
         token = IERC20(_token);
@@ -34,10 +38,17 @@ contract Expir3 is Ownable {
         //must set allowance per token
         //approve tokenContract
         //should turn on deadmans switch here
+
         //select recipients (1 for now)
 
+        // turn on deadmans lock
+       
+    }
 
-        require(token.transferFrom(msg.sender, address(this), amount), "Transfer to escrow failed!");
+    // renew deadman's lock - hourly, daily, yearly.. etc
+    function checkIn() public {
+        // check block.timestamp;
+        // renew that mapping 
     }
 
 
@@ -66,6 +77,15 @@ contract Expir3 is Ownable {
 
       //check balances make sure there is enough so we don't revert
 //    }
+
+    //bypass the chainlink keeprs for now to test
+    function executeNanually() public {
+        //check if true
+       // require( deadmans lock);
+
+        //transfer funds 
+         require(token.transferFrom(msg.sender, address(this), amount), "Transfer to escrow failed!");
+    }
 
     //function to pull out token
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
