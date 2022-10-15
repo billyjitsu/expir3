@@ -25,7 +25,7 @@ contract Expir3 is Ownable {
     // mapping (address => address) public recipients;
 
     // map address to deadmans
-    // mapping (address => boolean) pubic switch;
+    // mapping (address => boolean) pubic deadSwitch;
 
     constructor(address _token){
         token = IERC20(_token);
@@ -49,6 +49,7 @@ contract Expir3 is Ownable {
     function checkIn() public {
         // check block.timestamp;
         // renew that mapping 
+        lastCheckin[msg.sender] = block.timestamp + 2 minutes;  
     }
 
 
