@@ -1,31 +1,32 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
-// will compile your contracts, add the Hardhat Runtime Environment's members to the
-// global scope, and execute the script.
 const hre = require("hardhat");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  
+  const Web3 = await hre.ethers.getContractFactory("MockToken");
+  const web3 = await Web3.deploy();
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
+  await web3.deployed();
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
+  console.log("Template Contract deployed to:", web3.address);
+  const receipt = await web3.deployTransaction.wait();
+  console.log("gasUsed:" , receipt.gasUsed);
+ 
 
-  await lock.deployed();
+  const Template = await hre.ethers.getContractFactory("Expir3");
+  const contract = await Template.deploy(web3.address);
 
-  console.log(
-    `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
+  await contract.deployed();
+
+  console.log("Expir3 Contract deployed to:", contract.address);
+  const receipt2 = await contract.deployTransaction.wait();
+  console.log("gasUsed:" , receipt2.gasUsed);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

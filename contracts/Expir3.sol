@@ -11,7 +11,7 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
 // deathwish
 // testam3nt
-// Inh3ritance /Inh3rit
+// Inh3rit
 //contract Expir3 is AutomationCompatibleInterface, Ownable { 
 contract Expir3 is Ownable { 
 
@@ -31,6 +31,12 @@ contract Expir3 is Ownable {
 
     //register you wallet and set beneficiary
     function register() public {
+        //must set allowance per token
+        //approve tokenContract
+        //should turn on deadmans switch here
+        //select recipients (1 for now)
+
+
         require(token.transferFrom(msg.sender, address(this), amount), "Transfer to escrow failed!");
     }
 
