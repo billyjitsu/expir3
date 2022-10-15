@@ -29,6 +29,7 @@ contract Expir3 is Ownable {
     // map address to deadmans
     // mapping (address => boolean) pubic deadSwitch;
 
+    //for future to add more token support on the fly
     constructor(address _token){
         token = IERC20(_token);
     }
@@ -54,7 +55,7 @@ contract Expir3 is Ownable {
     }
 
        //bypass the chainlink keeprs for now to test
-    function executeNanually() public {
+    function executeManually() public {
         //check if true
        // require( deadmans lock);
 

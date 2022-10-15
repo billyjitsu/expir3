@@ -8,14 +8,14 @@ const { expect } = require("chai");
     // We use loadFixture to run this setup once, snapshot that state,
     // and reset Hardhat Network to that snapshopt in every test.
     async function beforeEachFunction() {
-     // const publicPrice = String(0.004 * (10 ** 18));
   
       // Contracts are deployed using the first signer/account by default
       const [owner, otherAccount] = await ethers.getSigners();
   
       //variables
+      const allowedAmount = 10;
     //  const royalty = "500";
-    //  const royaltyWallet = "0x49284a18822eE0d75fD928e5e0fC5a46C9213D96";
+
    
       const TempToken = await hre.ethers.getContractFactory("MockToken");
       const temptoken = await TempToken.deploy();
@@ -30,6 +30,7 @@ const { expect } = require("chai");
         contract,
         owner,
         otherAccount,
+        allowedAmount,
       };
     }
  
@@ -54,17 +55,21 @@ const { expect } = require("chai");
   
     describe("Check In", function () {
 
-        it("Register", async function () {
-            const { temptoken, contract, owner} = await loadFixture(
+        it("Register and execute", async function () {
+            const { temptoken, contract, owner, otherAccount , allowedAmount} = await loadFixture(
               beforeEachFunction
             );
-            //approve tokenContract
+         
             //should turn on deadmans switch here
-            //select recipients
+            //select recipients and amount
+              await contract.register(otherAccount.address, allowedAmount);
+              // approve contract
+              await temptoken.approve(contract.address, allowedAmount);
 
-           // await contract.togglePublicSale();
-           // await contract.mint(1, { value: publicPrice });
-           // expect(await contract.balanceOf(owner.address)).to.equal(1);
+              //execute 
+              await contract.executeManually();
+
+            expect(await temptoken.balanceOf(otherAccount.address)).to.equal(allowedAmount);
           });
     });
   
