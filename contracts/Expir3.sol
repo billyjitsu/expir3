@@ -59,6 +59,7 @@ contract Expir3 is Ownable {
         //check if true
        // require( deadmans lock);
 
+        // how would this work in a long list? look through the mapping length?
         //transfer funds 
          require(token.transferFrom(msg.sender, recipients[msg.sender], amounts[msg.sender]), "Transfer to escrow failed!");
     }
