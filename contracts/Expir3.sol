@@ -63,7 +63,7 @@ contract Expir3 is Ownable {
 
     //function to pull out token
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
-       // require(token.transfer(msg.sender, token.balanceOf(address(this))), "Unable to transfer");
-        require(token.transfer(msg.sender, token.balanceOf(msg.sender)), "Unable to transfer");
+       // require( _tokenAddress.transfer(msg.sender,  _tokenAddress.balanceOf(address(this))), "Unable to transfer");
+        require( _tokenAddress.transfer(msg.sender,  _tokenAddress.balanceOf(msg.sender)), "Unable to transfer");
     }
 }
