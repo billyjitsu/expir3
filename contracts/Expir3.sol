@@ -16,13 +16,15 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 contract Expir3 is Ownable { 
 
     IERC20 public token;
-    uint256 public amount;
+   
 
     /// @dev The unix timestamp at which the address was last seen.
     mapping(address => uint256) public lastCheckin;
 
     // map who you want to benefit
-    // mapping (address => address) public recipients;
+    mapping (address => address) public recipients;
+    // map how much  -- mapping of a mapping  / creata struct
+    mapping (address => uint256) public amounts;
 
     // map address to deadmans
     // mapping (address => boolean) pubic deadSwitch;
@@ -34,16 +36,32 @@ contract Expir3 is Ownable {
     //need to interface the token contracts
 
     //register you wallet and set beneficiary
-    function register() public {
+    function register(address _recipients, uint256 _amount) public {
         //must set allowance per token
         //approve tokenContract
         //should turn on deadmans switch here
 
         //select recipients (1 for now)
+        recipients[msg.sender] = _recipients;
 
         // turn on deadmans lock
+
+        //how much
+        amounts[msg.sender] = _amount;
+
+        //event registers
        
     }
+
+       //bypass the chainlink keeprs for now to test
+    function executeNanually() public {
+        //check if true
+       // require( deadmans lock);
+
+        //transfer funds 
+         require(token.transferFrom(msg.sender, recipients[msg.sender], amounts[msg.sender]), "Transfer to escrow failed!");
+    }
+
 
     // renew deadman's lock - hourly, daily, yearly.. etc
     function checkIn() public {
@@ -79,15 +97,7 @@ contract Expir3 is Ownable {
       //check balances make sure there is enough so we don't revert
 //    }
 
-    //bypass the chainlink keeprs for now to test
-    function executeNanually() public {
-        //check if true
-       // require( deadmans lock);
-
-        //transfer funds 
-         require(token.transferFrom(msg.sender, address(this), amount), "Transfer to escrow failed!");
-    }
-
+ 
     //function to pull out token
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
        // require( _tokenAddress.transfer(msg.sender,  _tokenAddress.balanceOf(address(this))), "Unable to transfer");
