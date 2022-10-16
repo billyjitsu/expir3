@@ -14,50 +14,56 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 // Inh3rit
 //contract Expir3 is AutomationCompatibleInterface, Ownable { 
 contract Expir3 is Ownable { 
-
+    // 1 token only at this time / array?
     IERC20 public token;
    
 
-    /// @dev The unix timestamp at which the address was last seen.
+    //Deadmans switch - Timestamp checkin
     mapping(address => uint256) public lastCheckin;
-
     // map who you want to benefit
     mapping (address => address) public recipients;
     // map how much  -- mapping of a mapping  / creata struct
     mapping (address => uint256) public amounts;
 
-    // map address to deadmans
+    // map address to deadmans signal?  if it passes?
     // mapping (address => boolean) pubic deadSwitch;
 
-    //for future to add more token support on the fly
+    //Events
+    event WalletRegistered(address _register, address _reciever, uint256 _amount, uint256 _time);
+
+    //for future to add more token support on the fly or register tokens
     constructor(address _token){
         token = IERC20(_token);
     }
 
     //need to interface the token contracts
+    // need front end to approve this contract
 
     //register you wallet and set beneficiary
     function register(address _recipients, uint256 _amount) public {
         //must set allowance per token
         //approve tokenContract
-        //should turn on deadmans switch here
 
         //select recipients (1 for now)
         recipients[msg.sender] = _recipients;
 
         // turn on deadmans lock
+        // lastCheckin[msg.sender] = block.timestamp + 2 minutes; 
+        lastCheckin[msg.sender] = block.timestamp + 15 seconds; 
 
         //how much
         amounts[msg.sender] = _amount;
 
         //event registers
+        emit WalletRegistered(msg.sender, recipients[msg.sender], amounts[msg.sender], lastCheckin[msg.sender]);
        
     }
 
        //bypass the chainlink keeprs for now to test
+       // this logic will go in the keepers
     function executeManually() public {
         //check if true
-       // require( deadmans lock);
+        require( block.timestamp > lastCheckin[msg.sender], "Not Dead");
 
         // how would this work in a long list? look through the mapping length?
         //transfer funds 
@@ -72,11 +78,16 @@ contract Expir3 is Ownable {
         lastCheckin[msg.sender] = block.timestamp + 2 minutes;  
     }
 
-
+    function cancelAll() public {
+        //need to revoke approvals on contracts
+        delete recipients[msg.sender];
+        delete lastCheckin[msg.sender];
+        delete amounts[msg.sender];
+    }
 
     /// @notice Returns the time (in seconds since the epoch) at which the owner was last seen, or zero if never seen.
-    function getLastSeen(address owner) external view returns (uint256) {
-        return lastCheckin[owner];
+    function getLastSeen(address _address) external view returns (uint256) {
+        return lastCheckin[_address];
     }
 
     function _updateLastSeen() internal {
