@@ -1,6 +1,13 @@
 const hre = require("hardhat");
 
 async function main() {
+
+ /* 
+ WETH 0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6
+ DAI  0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844
+ USDT 0xe583769738b6dd4E7CAF8451050d1948BE717679
+ USDC 0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C
+*/
   
   const Web3 = await hre.ethers.getContractFactory("MockToken");
   const web3 = await Web3.deploy();
