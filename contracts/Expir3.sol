@@ -24,6 +24,7 @@ contract Expir3 is Ownable {
 
     //Deadmans switch - Timestamp checkin
     mapping(address => uint256) public lastCheckin;
+    mapping(address => uint256) public demoCheckin;
     // store a mapping of addresses so no longer using msg.sender to execute
     mapping (uint256 => address[]) public executionDate;
 
@@ -48,12 +49,11 @@ contract Expir3 is Ownable {
     event WalletRegistered(address _register, address _reciever, uint256 _amount, uint256 _time);
 
     //for future to add more token support on the fly or register tokens
-    constructor(address _token){
-        //token = IERC20(_token);
-        token = _token;  // make this dynamic?
+    constructor(){
+     // remove the hardcoded token
     }
     
-    //need to interface the token contracts
+    // need to interface the token contracts
     // need front end to approve this contract
 
     // push the tokens in an array
@@ -72,7 +72,7 @@ contract Expir3 is Ownable {
 
         // turn on deadmans lock
         // demo deadmans lock - another quick mapping
-        //  lastCheckin[msg.sender] = block.timestamp + 15 seconds; 
+          demoCheckin[msg.sender] = block.timestamp + 15 seconds; 
 
         // if I have an execution date, dont' add another
         if (lastCheckin[msg.sender] == 0) {
@@ -87,13 +87,22 @@ contract Expir3 is Ownable {
        // emit WalletRegistered(msg.sender, recipients[msg.sender], amounts[msg.sender], lastCheckin[msg.sender]);
     }
      
-
        //bypass the chainlink keeprs for now to test
        // this logic will go in the keepers
     function executeManually() public {
-        //check if true
-        // will need a way to scan through all scanners
-    //    require( block.timestamp > lastCheckin[msg.sender], "Not Dead");  <<< verify the check
+    
+    
+        // Check the Day
+        uint256 currentDay =  getDay(block.timestamp);
+
+        // Run the day array addresses
+   //     for(uint256 i = 0; i < executionDate[currentDay][i].length; i++) {
+            //look up array postions to map the address
+   //       require(IERC20(tokens[msg.sender][i]).transferFrom(msg.sender, massRecipients[msg.sender][i], multiAmounts[msg.sender][i]), "Transfer to escrow failed!");
+   //     }
+
+        //Demo check
+        //  require( block.timestamp > demoCheckin[msg.sender], "Not Dead");  <<< Demo Requirement
 
         // how would this work in a long list? look through the mapping length?
         //transfer funds based on the length of recipients - doesn't account for token balances after though
@@ -104,10 +113,10 @@ contract Expir3 is Ownable {
         //delete the mapping
     }
 
-
     // renew deadman's lock - hourly, daily, yearly.. etc
     function checkIn() public {
-        // check block.timestamp;
+        //demo check in
+        demoCheckin[msg.sender] = block.timestamp + 15 seconds;  // add a little more time
 
         //delete old position
         uint256 oldDate = getLastSeen(msg.sender);
@@ -119,7 +128,6 @@ contract Expir3 is Ownable {
         lastCheckin[msg.sender] = getDay(block.timestamp - 1 days);  //update mapping of days  set to yesterady = 364 days
         position[msg.sender] = executionDate[temp].length;
         executionDate[temp].push(msg.sender);
-
     }
 
     function cancelAll() public {
@@ -134,7 +142,6 @@ contract Expir3 is Ownable {
         delete executionDate[tempCheck][tempPos];
         delete lastCheckin[msg.sender];
     }
-
 
     /// @notice Returns the time (in seconds since the epoch) at which the owner was last seen, or zero if never seen.
     function getLastSeen(address _address) public view returns (uint256) {
@@ -170,7 +177,6 @@ contract Expir3 is Ownable {
       // delete today's mapping
 //    }
 
- 
     //function to pull out token
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
        // require( _tokenAddress.transfer(msg.sender,  _tokenAddress.balanceOf(address(this))), "Unable to transfer");
