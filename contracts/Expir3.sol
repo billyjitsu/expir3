@@ -88,8 +88,6 @@ contract Expir3 is Ownable {
     }
      
 
-    
-
        //bypass the chainlink keeprs for now to test
        // this logic will go in the keepers
     function executeManually() public {
@@ -105,20 +103,6 @@ contract Expir3 is Ownable {
 
         //delete the mapping
     }
-
-    /*
-
-       //bypass the chainlink keeprs for now to test
-       // this logic will go in the keepers
-    function executeManually() public {
-        //check if true
-        require( block.timestamp > lastCheckin[msg.sender], "Not Dead");
-
-        // how would this work in a long list? look through the mapping length?
-        //transfer funds 
-         require(token.transferFrom(msg.sender, recipients[msg.sender], amounts[msg.sender]), "Transfer to escrow failed!");
-    }
-    */
 
 
     // renew deadman's lock - hourly, daily, yearly.. etc
