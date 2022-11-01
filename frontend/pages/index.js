@@ -15,6 +15,7 @@ export default function Home() {
       </header>
       <hr></hr>
       <main className={styles.main}>
+        ;
         <h2 className="text-3xl font-semibold self-start mx-5 max-w-50">
           Create your on Chain will
         </h2>
@@ -22,25 +23,13 @@ export default function Home() {
           Schedule automatic payouts to accounts of your choice as your will or
           as a fall back.
         </p>
-        <button style={heroActionButton}>
-          <a href="#">Create New/ Sign In</a>
+        <button className="text-2xl font-semibold bg-black text-white p-3 self-start mx-5 mt-12 border-none rounded-md">
+          <a href="#">Register Now</a>
         </button>
       </main>
     </div>
   );
 }
-
-const heroActionButton = {
-  fontSize: "25px",
-  fontWeight: "500",
-  backgroundColor: "black",
-  color: "white",
-  padding: "10px 20px",
-  alignSelf: "start",
-  margin: "50px 20px 0 20px",
-  borderRadius: "7px",
-  border: "none",
-};
 
 /*
   Legacy: struct -- tracks
