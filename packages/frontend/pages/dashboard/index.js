@@ -1,6 +1,7 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
-import Dropdown from "../../components/dropdown";
+// import Dropdown from "../../components/dropdown";
+import Input from "../../components/input";
 import React from "react";
 
 const index = () => {
@@ -24,7 +25,10 @@ const index = () => {
               Schedule automatic payouts to accounts of your choice as your will
               or as a fall back.
             </p>{" "}
-            <Dropdown />
+
+            <div className="mt-16 max-w-sm mx-auto">
+              <Input />
+            </div>
           </>
         ) : (
           <>
