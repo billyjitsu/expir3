@@ -1,8 +1,6 @@
 import Head from 'next/head';
 
 
-import { GetGreeter, SetGreeter } from '../components/contract';
-
 export default function Home() {
   return (
     <div className={''}>
