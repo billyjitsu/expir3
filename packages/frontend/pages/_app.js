@@ -32,12 +32,12 @@ const hardhatChain = {
 };
 
 const { chains, provider } = configureChains(
-  [chain.mainnet, chain.polygon, chain.optimism, chain.arbitrum, hardhatChain],
+  [chain.goerli, hardhatChain],
   [alchemyProvider({ alchemyId }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
-  appName: 'create-web3',
+  appName: 'Expir3',
   chains,
 });
 
@@ -55,7 +55,7 @@ const App = ({ Component, pageProps }) => {
     <WagmiConfig client={wagmiClient}>
       <RainbowKitProvider coolMode chains={chains}>
         <NextHead>
-          <title>create-web3</title>
+          <title>Expir3</title>
         </NextHead>
         <Component {...pageProps} />
       </RainbowKitProvider>

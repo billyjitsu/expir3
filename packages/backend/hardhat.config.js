@@ -1,4 +1,4 @@
-require('@nomiclabs/hardhat-waffle');
+require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config({ path: '../../.env' });
 
 require('hardhat-deploy');
@@ -10,7 +10,7 @@ const defaultNetwork = 'localhost';
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: '0.8.10',
+  solidity: '0.8.17',
   defaultNetwork,
 
   networks: {
@@ -75,6 +75,11 @@ module.exports = {
     //   url: `https://polygon-mumbai.infura.io/v3/${process.env.NEXT_PUBLIC_INFURA_ID}`,
     //   accounts: [`${process.env.PRIVATE_KEY}`],
     // },
+  },
+  etherscan: {
+    // Your API key for Etherscan
+    // Obtain one at https://etherscan.io/
+    apiKey: process.env.ETHERSCAN_API_KEY,
   },
   namedAccounts: {
     deployer: {
