@@ -1,6 +1,6 @@
 import Head from 'next/head';
 
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+
 import { GetGreeter, SetGreeter } from '../components/contract';
 
 export default function Home() {
@@ -15,7 +15,6 @@ export default function Home() {
       <h1 className="text-4xl font-bold">🔏 Expir3</h1>
     </header>
     <hr></hr>
-    <ConnectButton />
     <main className={''}>
       ;
       <h2 className="text-3xl font-semibold self-start mx-5 max-w-50">
