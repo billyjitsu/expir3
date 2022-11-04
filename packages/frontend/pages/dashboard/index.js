@@ -10,6 +10,8 @@ const index = () => {
   const { account, isConnected } = useAccount();
   const [showModal, setShowModal] = useState(false);
 
+  
+
   return (
     <div className="h-screen flex flex-col">
       <header className="flex justify-between p-3">

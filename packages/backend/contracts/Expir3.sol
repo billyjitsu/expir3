@@ -33,12 +33,15 @@ struct Legacy {
 // testam3nt
 // Inh3rit
 //contract Expir3 is AutomationCompatibleInterface, Ownable {
-contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
+contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterface {
     /** --- Contract State --- */
     using Strings for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+
+    /** @dev Temp holder for IPFS style NFT (to be SVG) */
+    string private baseTokenUri;
 
     /** @dev From address to uint in 0-364 (day of will execution) */
     mapping(address => uint256) public executionDay;
@@ -95,6 +98,9 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
         uint256 indexed executionDay
     );
 
+    /** @dev Settings up constructor to implement NFT token name */
+    constructor() ERC721("Expir3", "EXP") public { }
+
     /** --- Internal Functions --- */
 
     /** @dev Returns a 'day' (uint from 0 to 364) to map a timestamp to execution day */
@@ -134,6 +140,10 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
         }
 
         //mint NFT to recipient
+        uint256 nftId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(beneficiary, nftId);
+        // add data to NFT
         
     }
 
@@ -156,6 +166,8 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
                 legacies[msg.sender].length - 1
             ];
         legacies[msg.sender].pop();
+
+        //burn NFT
     }
 
     /** @notice Function for Testator to check in
@@ -227,6 +239,8 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
             }
         }
         delete legacies[testator];
+
+        //burn NFTs
     }
 
     /** @notice Function to execute a certain day's wills */
@@ -270,13 +284,16 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
      }
 
     /** @notice return token URI of Legacy reciever */
-    /*
+
+    function _baseURI() internal view virtual override returns (string memory) {
+        return baseTokenUri;
+    }
+ 
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
         require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
   
-        return;
+        return baseTokenUri;
     }
-    */
 
     // TODO: Frontend needs to ask for approve of all tokens to bequeath
 
@@ -292,7 +309,9 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
 
     
     // //Called by Chainlink Keepers to check if work needs to be done
-    function checkUpkeep(bytes calldata /*checkData */) external returns (bool upkeepNeeded, bytes memory) {
+    function checkUpkeep(bytes calldata /*checkData */) external override view returns (bool upkeepNeeded, bytes memory tempData) {
+        upkeepNeeded = fakeUpkeep();
+        tempData = "";
     
      //possible grace period
         uint256 currentDay = getDay(block.timestamp - 1 days);
@@ -301,7 +320,7 @@ contract Expir3 is Ownable, ReentrancyGuard, AutomationCompatibleInterface {
     
 
      //Called by Chainlink Keepers to handle work
-      function performUpkeep(bytes calldata) external {
+      function performUpkeep(bytes calldata) external override {
         uint256 presentDay;
             //convert to day
             presentDay =  getDay(block.timestamp - 1 days);
