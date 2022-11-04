@@ -16,7 +16,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
-
 /** @notice A struct to define legacy to bequeath (ERC20, ERC721 or ERC155)
  *  @dev if  `amount` && !`tokenId` -> ERC20
  *       if !`amount` &&  `tokenId` -> ERC721
@@ -27,13 +26,19 @@ struct Legacy {
     address beneficiary;
     uint256 amount;
     uint256 tokenId;
+    uint256 nftId;
 }
 
 // deathwish
 // testam3nt
 // Inh3rit
 //contract Expir3 is AutomationCompatibleInterface, Ownable {
-contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterface {
+contract Expir3 is
+    Ownable,
+    ReentrancyGuard,
+    ERC721,
+    AutomationCompatibleInterface
+{
     /** --- Contract State --- */
     using Strings for uint256;
     using Counters for Counters.Counter;
@@ -61,7 +66,8 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
         address indexed token,
         address beneficiary,
         uint256 amount,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 nftId
     );
 
     /** @notice A testator registered removed some Legacy  */
@@ -71,7 +77,8 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
         address indexed token,
         address beneficiary,
         uint256 amount,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 nftId
     );
 
     /** @notice A testator moved its execution Day after check in (this also means it changed position in `executionList`) */
@@ -88,7 +95,8 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
         address indexed beneficiary,
         address token,
         uint256 amount,
-        uint256 tokenId
+        uint256 tokenId,
+        uint256 nftId
     );
 
     /** @notice A will has been carried out */
@@ -99,7 +107,7 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
     );
 
     /** @dev Settings up constructor to implement NFT token name */
-    constructor() ERC721("Expir3", "EXP") public { }
+    constructor() ERC721("Expir3", "EXP") {}
 
     /** --- Internal Functions --- */
 
@@ -124,27 +132,32 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
             beneficiary == address(0) ||
             (amount == 0 && tokenId == 0)
         ) revert InvalidLegacy();
-        legacies[msg.sender].push(Legacy(token, beneficiary, amount, tokenId));
+
+        // Get the NFT id
+        uint256 nftId = _tokenIdCounter.current();
+
+        legacies[msg.sender].push(
+            Legacy(token, beneficiary, amount, tokenId, nftId)
+        );
         emit AddLegacy(
             block.timestamp,
             msg.sender,
             token,
             beneficiary,
             amount,
-            tokenId
+            tokenId,
+            nftId
         );
 
         //for testing adding a checkin
-        if(executionDay[msg.sender] == 0){
+        if (executionDay[msg.sender] == 0) {
             checkIn();
         }
 
-        //mint NFT to recipient
-        uint256 nftId = _tokenIdCounter.current();
+        // Mint the NFT to the beneficiary
         _tokenIdCounter.increment();
         _safeMint(beneficiary, nftId);
         // add data to NFT
-        
     }
 
     /** @notice Function for Testator to remove Legacy */
@@ -158,16 +171,20 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
             l.token,
             l.beneficiary,
             l.amount,
-            l.tokenId
+            l.tokenId,
+            l.nftId
         );
+
+        //burn NFT
+        _burn(l.nftId);
+
+        // Remove Legacy from list of Legacies for that testator
         if (position < legacies[msg.sender].length - 1)
             // It's not last element, we move last element to position
             legacies[msg.sender][position] = legacies[msg.sender][
                 legacies[msg.sender].length - 1
             ];
         legacies[msg.sender].pop();
-
-        //burn NFT
     }
 
     /** @notice Function for Testator to check in
@@ -178,16 +195,36 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
         uint256 prevCheckIn = executionDay[msg.sender];
         executionDay[msg.sender] = getDay(block.timestamp - 1 days);
         // Remove testator from previous checkIn's list
-        for (uint256 i = 0; i < executionList[prevCheckIn].length; i++) {
-            if (executionList[prevCheckIn][i] == msg.sender) {
-                executionList[prevCheckIn][i] = address(0);
+        if (
+            executionList[prevCheckIn][executionList[prevCheckIn].length - 1] ==
+            msg.sender
+        ) {
+            // msg.sender is the last item in the list, we just remove it
+            executionList[prevCheckIn].pop();
+        } else {
+            // msg.sender is not the last item, so we search it and replace with the last item
+            for (
+                uint256 i = 0;
+                i < executionList[prevCheckIn].length - 1;
+                i++
+            ) {
+                if (executionList[prevCheckIn][i] == msg.sender) {
+                    executionList[prevCheckIn][i] = executionList[prevCheckIn][
+                        executionList[prevCheckIn].length - 1
+                    ];
+                    executionList[prevCheckIn].pop();
+                }
             }
         }
+        // Add testator to new checkIn's list
         executionList[executionDay[msg.sender]].push(msg.sender);
 
-        // adjust positions
-
-        //event 
+        // emit an event upon successful checkin
+        emit NewExecutionDay(
+            block.timestamp,
+            msg.sender,
+            executionDay[msg.sender]
+        );
     }
 
     /** @notice Function to execute a Testator's will */
@@ -234,17 +271,32 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
                     legacy.beneficiary,
                     legacy.token,
                     legacy.amount,
-                    legacy.tokenId
+                    legacy.tokenId,
+                    legacy.nftId
                 );
             }
+            // Burn the NFT of the beneficiary
+            _burn(legacy.nftId);
         }
         delete legacies[testator];
 
         //burn NFTs
     }
 
+    /** -- Overrides for NFTs --  */
+    function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal override {
+        if (from != address(0) && to != address(0))
+            revert NonTransferrableToken();
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
     /** @notice Function to execute a certain day's wills */
-    function executeDay(uint256 day) public nonReentrant {   //external onlyOwner
+    function executeDay(uint256 day) public nonReentrant {
+        //external onlyOwner
         if (executionList[day].length == 0) return; // No wills to execute on this day
         for (uint256 i = 0; i < executionList[day].length; i++) {
             if (executionList[day][i] != address(0)) {
@@ -255,43 +307,48 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
     }
 
     /** @notice Function to know if there are wills to execute in a day */
-    function willsToExecuteInDay(uint256 day)
-        public
-        view
-        returns (bool)
-    {
+    function willsToExecuteInDay(uint256 day) public view returns (bool) {
         return executionList[day].length > 0;
     }
 
     // Keepers logic
-     function fakeUpkeep () view public returns(bool){
-         // check if there are wills to execute
-         //uint256 currentDay = getDay(block.timestamp);
-         uint256 currentDay = getDay(block.timestamp - 1 days);
-         bool booleanCheck = willsToExecuteInDay(currentDay);
-         return booleanCheck;
-     }
+    function fakeUpkeep() public view returns (bool) {
+        // check if there are wills to execute
+        //uint256 currentDay = getDay(block.timestamp);
+        uint256 currentDay = getDay(block.timestamp - 1 days);
+        bool booleanCheck = willsToExecuteInDay(currentDay);
+        return booleanCheck;
+    }
 
-     // Keepers logic
-     function fakeExecute () public {
-            // adjust to execute same day as checkin
-            //execute today
-            uint256 presentDay;
-            //convert to day
-            presentDay =  getDay(block.timestamp - 1 days);
-            executeDay(presentDay);
-      //  }
-     }
+    // Keepers logic
+    function fakeExecute() public {
+        // adjust to execute same day as checkin
+        //execute today
+        uint256 presentDay;
+        //convert to day
+        presentDay = getDay(block.timestamp - 1 days);
+        executeDay(presentDay);
+        //  }
+    }
 
     /** @notice return token URI of Legacy reciever */
 
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenUri;
     }
- 
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
-  
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        require(
+            _exists(tokenId),
+            "ERC721Metadata: URI query for nonexistent token"
+        );
+
         return baseTokenUri;
     }
 
@@ -307,25 +364,33 @@ contract Expir3 is Ownable, ReentrancyGuard, ERC721, AutomationCompatibleInterfa
     /** @dev Error for Testator without Legacy */
     error NoLegacyRegistered();
 
-    
+    /** @dev Error for NFT Transfer Attemp */
+    error NonTransferrableToken();
+
     // //Called by Chainlink Keepers to check if work needs to be done
-    function checkUpkeep(bytes calldata /*checkData */) external override view returns (bool upkeepNeeded, bytes memory tempData) {
+    function checkUpkeep(
+        bytes calldata /*checkData */
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory tempData)
+    {
         upkeepNeeded = fakeUpkeep();
         tempData = "";
-    
-     //possible grace period
-        uint256 currentDay = getDay(block.timestamp - 1 days);
-      upkeepNeeded = willsToExecuteInDay(currentDay);  //(beneficiary != address(0))
-    }
-    
 
-     //Called by Chainlink Keepers to handle work
-      function performUpkeep(bytes calldata) external override {
+        //possible grace period
+        uint256 currentDay = getDay(block.timestamp - 1 days);
+        upkeepNeeded = willsToExecuteInDay(currentDay); //(beneficiary != address(0))
+    }
+
+    //Called by Chainlink Keepers to handle work
+    function performUpkeep(bytes calldata) external override {
         uint256 presentDay;
-            //convert to day
-            presentDay =  getDay(block.timestamp - 1 days);
-            executeDay(presentDay);
-      }
+        //convert to day
+        presentDay = getDay(block.timestamp - 1 days);
+        executeDay(presentDay);
+    }
 
     //function to pull out token
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
