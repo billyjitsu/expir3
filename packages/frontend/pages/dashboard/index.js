@@ -8,6 +8,8 @@ import React from "react";
 const index = () => {
   const { account, isConnected } = useAccount();
 
+  
+
   return (
     <div className="h-screen flex flex-col">
       <header className="flex justify-between p-3">
