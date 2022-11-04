@@ -4,7 +4,8 @@ import '../styles/globals.css';
 
 // Imports
 import { chain, createClient, WagmiConfig, configureChains } from 'wagmi';
-import { alchemyProvider } from 'wagmi/providers/alchemy';
+// import { alchemyProvider } from 'wagmi/providers/alchemy';
+import { jsonRpcProvider } from 'wagmi/providers/jsonRpc';
 import { publicProvider } from 'wagmi/providers/public';
 
 import '@rainbow-me/rainbowkit/styles.css';
@@ -13,7 +14,7 @@ import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import { useIsMounted } from '../hooks';
 
 // Get environment variables
-const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
+// const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID;
 // const infuraId = process.env.NEXT_PUBLIC_INFURA_ID;
 
 const hardhatChain = {
@@ -33,7 +34,8 @@ const hardhatChain = {
 
 const { chains, provider } = configureChains(
   [chain.goerli, hardhatChain],
-  [alchemyProvider({ alchemyId }), publicProvider()]
+  // [alchemyProvider({ alchemyId }), publicProvider()]
+  [jsonRpcProvider({ rpc: () => ({ http: 'https://rpc.ankr.com/eth_goerli' }) }), publicProvider()]
 );
 
 const { connectors } = getDefaultWallets({
