@@ -62,13 +62,7 @@ const index = () => {
 
   const { config, error } = usePrepareContractWrite({
     address: '0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B',
-    abi:[{
-      inputs: [],
-      name: "checkIn",
-      outputs: [],
-      stateMutability: "nonpayable",
-      type: "function"
-    },],
+    abi: contractStuff.abi,
     functionName: "checkIn",
   });
   const { write } = useContractWrite(config);
@@ -100,7 +94,7 @@ const index = () => {
   //test effect:
   useEffect(() => {
     console.log("USE NETWORK");
-    console.log("contractconfig", contractConfig); // array of supported chains
+   // console.log("contractconfig", contractConfig); // array of supported chains
     // console.log("chainId:", chainId);
     // console.log("activeChain:", activeChain);
     // console.log("chainStuff:", chainStuff);
