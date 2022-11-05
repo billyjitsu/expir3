@@ -35,7 +35,7 @@ struct Legacy {
 // deathwish
 // testam3nt
 // Inh3rit
-//contract Expir3 is AutomationCompatibleInterface, Ownable {
+
 contract Expir3 is
     Ownable,
     ReentrancyGuard,

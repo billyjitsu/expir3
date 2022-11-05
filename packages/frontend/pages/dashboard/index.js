@@ -34,7 +34,7 @@ const index = () => {
     error: addError,
   } = useContractWrite({
     mode: "recklesslyUnprepared",
-    address: '0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B',
+    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
     abi: contractStuff.abi,
     functionName: "addLegacy",
     args: [
@@ -61,7 +61,7 @@ const index = () => {
   };
 
   const { config, error } = usePrepareContractWrite({
-    address: '0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B',
+    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
     abi: contractStuff.abi,
     functionName: "checkIn",
   });
