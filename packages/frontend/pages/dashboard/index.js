@@ -3,16 +3,17 @@ import {
   useAccount,
   useContract,
   useContractRead,
+  usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
   useProvider,
   useSigner,
 } from "wagmi";
 import Modal from "../../components/modal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 //contract location
-import contract from "../../contracts/contract.json";
+import contractStuff from "../../contracts/contract.json";
 
 const index = () => {
   const { account, isConnected } = useAccount();
@@ -20,8 +21,10 @@ const index = () => {
   const [loading, setLoading] = useState(false);
 
   const contractConfig = {
-    addressOrName: "0xbeb62460cd1773dfa240ae23cc1bc4c089faa52b",
-    contractInterface: contract.abi,
+
+    addressOrName: "0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B",
+    contractInterface: contractStuff.abi,
+
   };
   // Not working
   const {
@@ -30,7 +33,18 @@ const index = () => {
     isLoading: isAddLoading,
     isSuccess: isAddStarted,
     error: addError,
-  } = useContractWrite(contractConfig, "addLegacy");
+  } = useContractWrite({
+    mode: "recklesslyUnprepared",
+    address: '0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B',
+    abi: contractStuff.abi,
+    functionName: "addLegacy",
+    args: [
+      "0x74b17BbA1F94141552F9697F16f29fc1Edb1AEf7",
+      "0xe2b8651bF50913057fF47FC4f02A8e12146083B8",
+      10,
+      0,
+    ],
+  });
 
   // Group Click Function
   const addFunction = async () => {
@@ -47,13 +61,52 @@ const index = () => {
     });
   };
 
+  const { config, error } = usePrepareContractWrite({
+    address: '0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B',
+    abi:[{
+      inputs: [],
+      name: "checkIn",
+      outputs: [],
+      stateMutability: "nonpayable",
+      type: "function"
+    },],
+    functionName: "checkIn",
+  });
+  const { write } = useContractWrite(config);
+
+  // Group Click Function
+  const checkIn = async () => {
+    const tx = await check();
+  };
+
+  // // Total Cubes Bought
+  // const { data: upkeepData } = useContractRead({
+  //   ...contractConfig,
+  //   functionName: 'fakeUpkeep',
+  //  // watch: true,
+  //  // chainId: 5,
+  // });
+
+  // const checkStatus = async () => {
+
+  //   console.log("upkeepData", upkeepData);
+  // };
+
   //Using useContract only (instead of useContractWrite)
   // const addBenefit = useContract({
   //   ...contractConfig,
   //   signerOrProvider: signerData,
   // });
 
-  
+  //test effect:
+  useEffect(() => {
+    console.log("USE NETWORK");
+    console.log("contractconfig", contractConfig); // array of supported chains
+    // console.log("chainId:", chainId);
+    // console.log("activeChain:", activeChain);
+    // console.log("chainStuff:", chainStuff);
+    console.log("___________");
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
@@ -85,15 +138,34 @@ const index = () => {
 
             {/* TEST BUTTON */}
             <button
-              onClick={addFunction}
+              onClick={add}
               className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
             >
               {" "}
               test{" "}
             </button>
+            <button
+              onClick={() => write?.()}
+              className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
+            >
+              {" "}
+              Checkin{" "}
+            </button>
+            {error && (
+              <div>
+                An error occurred preparing the transaction: {error.message}
+              </div>
+            )}
+            {/* <button
+              onClick={checkStatus}
+              className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
+            >
+              {" "}
+              Read{" "}
+            </button> */}
+
             {/* //////////// */}
 
-            
             <Modal />
             {/* <button className="text-2xl font-semibold bg-black text-white p-3 self-start mx-5 mt-12 border-none rounded-md"
               onClick={() => setShowModal(true)}>
