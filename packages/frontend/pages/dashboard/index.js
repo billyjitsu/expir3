@@ -3,6 +3,7 @@ import {
   useAccount,
   useContract,
   useContractRead,
+  usePrepareContractWrite,
   useContractWrite,
   useWaitForTransaction,
   useProvider,
@@ -30,7 +31,11 @@ const index = () => {
     isLoading: isAddLoading,
     isSuccess: isAddStarted,
     error: addError,
-  } = useContractWrite(contractConfig, "addLegacy");
+  } = useContractWrite({
+    mode: "recklesslyUnprepared",
+    contractConfig,
+    functionName: "addLegacy",
+  });
 
   // Group Click Function
   const addFunction = async () => {
@@ -52,8 +57,6 @@ const index = () => {
   //   ...contractConfig,
   //   signerOrProvider: signerData,
   // });
-
-  
 
   return (
     <div className="h-screen flex flex-col">
@@ -93,7 +96,6 @@ const index = () => {
             </button>
             {/* //////////// */}
 
-            
             <Modal />
             {/* <button className="text-2xl font-semibold bg-black text-white p-3 self-start mx-5 mt-12 border-none rounded-md"
               onClick={() => setShowModal(true)}>
