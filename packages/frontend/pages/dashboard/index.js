@@ -20,84 +20,74 @@ const index = () => {
   const { data: signerData } = useSigner();
   const [loading, setLoading] = useState(false);
 
+  const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
+
   // Not working
   // const contractConfig = {
-  //   addressOrName: "0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B",
+  //   addressOrName: "0x767a79d21Fd9eC7222379340d77c63FE758f4433",
   //   contractInterface: contractStuff.abi,
   // };
-  
-  const {
-    data: addLegacy,
-    write: add,
-    isLoading: isAddLoading,
-    isSuccess: isAddStarted,
-    error: addError,
-  } = useContractWrite({
-    mode: "recklesslyUnprepared",
-    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
+
+  // ALL DATA HARDCODED
+
+  // Check If any Beneficiaries
+  const { data: legaciesData } = useContractRead({
+    address: contractAddress,
     abi: contractStuff.abi,
-    functionName: "addLegacy",
-    args: [
-      "0x74b17BbA1F94141552F9697F16f29fc1Edb1AEf7",
-      "0xe2b8651bF50913057fF47FC4f02A8e12146083B8",
-      10,
-      0,
-    ],
+    functionName: "legacies",
+    watch: true,
+    chainId: 5,
+    args: ["0xe2b8651bF50913057fF47FC4f02A8e12146083B8", 0],
   });
 
-  // Group Click Function
-  const addFunction = async () => {
-    const tx = await add({
-      args: [
-        "0x74b17BbA1F94141552F9697F16f29fc1Edb1AEf7",
-        "0xe2b8651bF50913057fF47FC4f02A8e12146083B8",
-        10,
-        0,
-      ],
-      //   overrides: {
-      //   value: ethers.utils.parseEther(payment) ,
-      // },
-    });
-  };
-
-  const { config, error } = usePrepareContractWrite({
-    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
+  const { data: execDay } = useContractRead({
+    address: contractAddress,
     abi: contractStuff.abi,
-    functionName: "checkIn",
+    functionName: "executionDay",
+    watch: true,
+    chainId: 5,
+    args: ["0xe2b8651bF50913057fF47FC4f02A8e12146083B8"],
   });
-  const { write } = useContractWrite(config);
 
-  // Group Click Function
-  const checkIn = async () => {
-    const tx = await check();
-  };
+  const { data: execListData } = useContractRead({
+    address: contractAddress,
+    abi: contractStuff.abi,
+    functionName: "executionList",
+    watch: true,
+    chainId: 5,
+    args: [320, 0],
+  });
 
-  // // Total Cubes Bought
-  // const { data: upkeepData } = useContractRead({
-  //   ...contractConfig,
-  //   functionName: 'fakeUpkeep',
-  //  // watch: true,
-  //  // chainId: 5,
-  // });
+  const { data: nftData } = useContractRead({
+    address: contractAddress,
+    abi: contractStuff.abi,
+    functionName: "legacyNFTs",
+    watch: true,
+    chainId: 5,
+    args: [1],
+  });
 
-  // const checkStatus = async () => {
+  const renderListOfBeneficiaries = (values) => {
+    return values.map(value => 
+    <p className="text-xs">{value.toString()}</p>
+    )
+  } 
 
-  //   console.log("upkeepData", upkeepData);
-  // };
+  //trying to figure out how to filter out the extra data
+  // const renderListOfBeneficiaries2 = (values) => {
+  //   return values.filter(value => 
+  //     <p className="text-xs">{value.toString()}</p>)
+    
+  // } 
 
-  //Using useContract only (instead of useContractWrite)
-  // const addBenefit = useContract({
-  //   ...contractConfig,
-  //   signerOrProvider: signerData,
-  // });
 
   //test effect:
   useEffect(() => {
-    console.log("USE NETWORK");
-   // console.log("contractconfig", contractConfig); // array of supported chains
-    // console.log("chainId:", chainId);
-    // console.log("activeChain:", activeChain);
-    // console.log("chainStuff:", chainStuff);
+    console.log("LOGS");
+    console.log("Legacies Total NFTS Minted", legaciesData.toString());
+    console.log("Execution Day:", execDay.toString());
+    console.log("Execution List:", execListData.toString());
+    console.log("legacyNFTs:", nftData);
     console.log("___________");
   }, []);
 
@@ -122,15 +112,21 @@ const index = () => {
               or as a fall back.
             </p>
             <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
-              <h3 className="font-semibold">Beneficiary</h3>
               <h3 className="font-semibold">Token</h3>
-              <h3 className="font-semibold">Token ID</h3>
+              <h3 className="font-semibold">Beneficiary</h3>
               <h3 className="font-semibold">Amount</h3>
+              <h3 className="font-semibold">Token ID</h3>
               <h3 className="font-semibold">Delete</h3>
             </div>
 
+            <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
+              {renderListOfBeneficiaries(nftData)}
+            </div>
+            
+
+
             {/* TEST BUTTON */}
-            <button
+            {/* <button
               onClick={add}
               className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
             >
@@ -138,17 +134,17 @@ const index = () => {
               test{" "}
             </button>
             <button
-              onClick={() => write?.()}
+              onClick={() => write?.([])}
               className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
             >
               {" "}
               Checkin{" "}
-            </button>
-            {error && (
+            </button> */}
+            {/* {error && (
               <div>
                 An error occurred preparing the transaction: {error.message}
               </div>
-            )}
+            )} */}
             {/* <button
               onClick={checkStatus}
               className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"

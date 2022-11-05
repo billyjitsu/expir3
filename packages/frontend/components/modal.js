@@ -12,6 +12,8 @@ import {
 
 //contract location
 import contractStuff from "../contracts/contract.json";
+import mockToken from "../contracts/mockToken.json";
+/* @Dev MockToken Contract Address  0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C */
 
 const modal = () => {
   const { address: testatorAddress } = useAccount();
@@ -23,6 +25,9 @@ const modal = () => {
   const [amount, setAmount] = useState(0);
   const [tokenId, setTokenId] = useState(0);
 
+  const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
+  const mockTokenAddress = '0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C';
+
   const {
     data: addLegacyData,
     write: addLegacy,
@@ -31,7 +36,7 @@ const modal = () => {
     error: addError,
   } = useContractWrite({
     mode: "recklesslyUnprepared",
-    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
+    address: contractAddress,
     abi: contractStuff.abi,
     functionName: "addLegacy",
     args: [
@@ -46,12 +51,31 @@ const modal = () => {
     data: checkLegacies
   } = useContractRead({
     // mode: "recklesslyUnprepared",
-    address: '0x81429d54b5B39f04C399aF05F4e96cA04144A51f',
+    address: contractAddress,
     abi: contractStuff.abi,
     functionName: "legacies",
     args: [
       testatorAddress,
       0,
+    ],
+  });
+
+  //approval for tokens
+  // hardcoded to Mock Token
+  const {
+    data: approvalData,
+    write: approveToken,
+    isLoading: isApprovalLoading,
+    isSuccess: isApprovalStarted,
+    error: approvalError,
+  } = useContractWrite({
+    mode: "recklesslyUnprepared",
+    address: mockTokenAddress,
+    abi: mockToken.abi,
+    functionName: "approve",
+    args: [
+      contractAddress,
+      amount,
     ],
   });
 
@@ -62,7 +86,10 @@ const modal = () => {
   }, [])
 
   const handleSubmit = async () => {
-    addLegacy();
+    //should approve token first before adding legacy
+    // we need to access the token contract ABIs for each token
+    approveToken();
+   await addLegacy();
     hide();
   }
 

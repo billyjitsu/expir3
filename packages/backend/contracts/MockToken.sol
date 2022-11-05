@@ -5,4 +5,9 @@ contract MockToken is ERC20 {
   constructor() ERC20("FakeDaiToken", "DAI") {
     _mint(msg.sender, 100000000 * 10 ** decimals());
   }
+
+  function mint() external {
+    _mint(msg.sender, 1000 * 10 ** decimals());
+  }
+
 }

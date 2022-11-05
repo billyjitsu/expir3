@@ -9,16 +9,16 @@ async function main() {
  USDC 0xD87Ba7A50B2E7E660f678A895E4B72E7CB4CCd9C
 */
   
-/*
-  const Web3 = await hre.ethers.getContractFactory("MockToken");
-  const web3 = await Web3.deploy();
 
-  await web3.deployed();
+  // const Web3 = await hre.ethers.getContractFactory("MockToken");
+  // const web3 = await Web3.deploy();
 
-  console.log("Template Contract deployed to:", web3.address);
-  const receipt = await web3.deployTransaction.wait();
-  console.log("gasUsed:" , receipt.gasUsed);
- */
+  // await web3.deployed();
+
+  // console.log("Template Contract deployed to:", web3.address);
+  // const receipt = await web3.deployTransaction.wait();
+  // console.log("gasUsed:" , receipt.gasUsed);
+ 
 
   const Template = await hre.ethers.getContractFactory("Expir3");
   const contract = await Template.deploy();

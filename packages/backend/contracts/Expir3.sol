@@ -45,10 +45,10 @@ contract Expir3 is
     /** --- Contract State --- */
     using Counters for Counters.Counter;
 
-    Counters.Counter private _tokenIdCounter;
+    Counters.Counter public _tokenIdCounter;
 
     /** @dev Temp holder for IPFS style NFT (to be SVG) */
-    string private baseTokenUri;
+    //string private baseTokenUri;
 
     /** @dev From address to uint in 0-364 (day of will execution) */
     mapping(address => uint256) public executionDay;
@@ -143,8 +143,9 @@ contract Expir3 is
 
         // Mint the NFT to the beneficiary
         uint256 nftId = _tokenIdCounter.current();
-        _tokenIdCounter.increment();
+        
         _safeMint(beneficiary, nftId);
+        _tokenIdCounter.increment();
 
         // Check if we need to checkin for the first time (after adding legacy!)
         bool notRegistered = executionDay[msg.sender] == 0 &&
