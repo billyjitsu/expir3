@@ -10,7 +10,7 @@ import {
   useSigner,
 } from "wagmi";
 import Modal from "../../components/modal";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 //contract location
 import contract from "../../contracts/contract.json";
@@ -21,7 +21,7 @@ const index = () => {
   const [loading, setLoading] = useState(false);
 
   const contractConfig = {
-    addressOrName: 0xbeb62460cd1773dfa240ae23cc1bc4c089faa52b,
+    addressOrName: "0xbeb62460cd1773dfa240ae23cc1bc4c089faa52b",
     contractInterface: contract.abi,
   };
   // Not working
@@ -33,7 +33,7 @@ const index = () => {
     error: addError,
   } = useContractWrite({
     mode: "recklesslyUnprepared",
-    contractConfig,
+    ...contractConfig,
     functionName: "addLegacy",
   });
 
@@ -52,11 +52,51 @@ const index = () => {
     });
   };
 
+  const {
+    data: checkData,
+    write: check,
+    isLoading: isCheckLoading,
+    isSuccess: isCheckStarted,
+    error: checkError,
+  } = useContractWrite({
+    mode: "recklesslyUnprepared",
+    contractConfig,
+    functionName: "checkIn",
+  });
+
+  // Group Click Function
+  const checkIn = async () => {
+    const tx = await check();
+  };
+
+  // Total Cubes Bought
+  const { data: upkeepData } = useContractRead({
+    ...contractConfig,
+    functionName: 'fakeUpkeep',
+   // watch: true,
+   // chainId: 5, 
+  });
+
+  const checkStatus = async () => {
+    
+    console.log("upkeepData", upkeepData);
+  };
+
   //Using useContract only (instead of useContractWrite)
   // const addBenefit = useContract({
   //   ...contractConfig,
   //   signerOrProvider: signerData,
   // });
+
+  //test effect:
+  useEffect(() => {
+    console.log("USE NETWORK");
+    console.log("contractconfig", contractConfig); // array of supported chains
+    // console.log("chainId:", chainId);
+    // console.log("activeChain:", activeChain);
+    // console.log("chainStuff:", chainStuff);
+    console.log("___________");
+  }, []);
 
   return (
     <div className="h-screen flex flex-col">
@@ -94,6 +134,22 @@ const index = () => {
               {" "}
               test{" "}
             </button>
+            <button
+              onClick={checkIn}
+              className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
+            >
+              {" "}
+              Checkin{" "}
+            </button>
+            <button
+              onClick={checkStatus}
+              className="bg-gray-900 hover:bg-gray-800 rounded-full px-12 py-2 sm:w-auto text-white"
+            >
+              {" "}
+              Checkin{" "}
+            </button>
+
+            
             {/* //////////// */}
 
             <Modal />
