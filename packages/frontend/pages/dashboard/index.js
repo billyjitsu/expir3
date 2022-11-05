@@ -20,7 +20,7 @@ const index = () => {
   const [loading, setLoading] = useState(false);
 
   const contractConfig = {
-    addressOrName: 0xbeb62460cd1773dfa240ae23cc1bc4c089faa52b,
+    addressOrName: "0xbeb62460cd1773dfa240ae23cc1bc4c089faa52b",
     contractInterface: contract.abi,
   };
   // Not working
