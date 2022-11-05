@@ -3,7 +3,7 @@ pragma solidity ^0.8.7;
 
 // AutomationCompatible.sol imports the functions from both ./AutomationBase.sol and
 // ./interfaces/AutomationCompatibleInterface.sol
-import "@openzeppelin/contracts/utils/Strings.sol";
+// import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
@@ -14,6 +14,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 
+import {TokenURIDescriptor} from "./TokenURIDescriptor.sol";
+
 import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
 
 /** @notice A struct to define legacy to bequeath (ERC20, ERC721 or ERC155)
@@ -22,6 +24,7 @@ import "@chainlink/contracts/src/v0.8/AutomationCompatible.sol";
  *       if  `amount` &&  `tokenId` -> ERC1155
  */
 struct Legacy {
+    address testator;
     address token;
     address beneficiary;
     uint256 amount;
@@ -40,7 +43,6 @@ contract Expir3 is
     AutomationCompatibleInterface
 {
     /** --- Contract State --- */
-    using Strings for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -55,7 +57,10 @@ contract Expir3 is
     mapping(uint256 => address[]) public executionList;
 
     /** @dev List of Allowances for each of the tokensToInherit per user */
-    mapping(address => Legacy[]) public legacies;
+    mapping(address => uint256[]) public legacies;
+
+    /** @dev Mapping of all the Legacies by nftId */
+    mapping(uint256 => Legacy) public legacyNFTs;
 
     /** --- Events --- */
 
@@ -107,7 +112,10 @@ contract Expir3 is
     );
 
     /** @dev Settings up constructor to implement NFT token name */
-    constructor() ERC721("Expir3", "EXP") {}
+    constructor() ERC721("Expir3", "EXP") {
+        // We start NFT IDs in 1
+        _tokenIdCounter.increment();
+    }
 
     /** --- Internal Functions --- */
 
@@ -133,12 +141,29 @@ contract Expir3 is
             (amount == 0 && tokenId == 0)
         ) revert InvalidLegacy();
 
-        // Get the NFT id
+        // Mint the NFT to the beneficiary
         uint256 nftId = _tokenIdCounter.current();
+        _tokenIdCounter.increment();
+        _safeMint(beneficiary, nftId);
 
-        legacies[msg.sender].push(
-            Legacy(token, beneficiary, amount, tokenId, nftId)
+        // Check if we need to checkin for the first time (after adding legacy!)
+        bool notRegistered = executionDay[msg.sender] == 0 &&
+            legacies[msg.sender].length == 0;
+
+        // Add Legacy to NFT mapping
+        legacyNFTs[nftId] = Legacy(
+            msg.sender,
+            token,
+            beneficiary,
+            amount,
+            tokenId,
+            nftId
         );
+
+        // Add Legacy to testator list
+        legacies[msg.sender].push(nftId);
+
+        // add data to NFT
         emit AddLegacy(
             block.timestamp,
             msg.sender,
@@ -149,22 +174,30 @@ contract Expir3 is
             nftId
         );
 
-        //for testing adding a checkin
-        if (executionDay[msg.sender] == 0) {
-            checkIn();
-        }
-
-        // Mint the NFT to the beneficiary
-        _tokenIdCounter.increment();
-        _safeMint(beneficiary, nftId);
-        // add data to NFT
+        // If not registered, checkin
+        if (notRegistered) checkIn();
     }
 
     /** @notice Function for Testator to remove Legacy */
     // TODO: Add payment
     function removeLegacy(uint256 position) external {
         if (position >= legacies[msg.sender].length) revert InvalidLegacy();
-        Legacy storage l = legacies[msg.sender][position];
+
+        uint256 nftId = legacies[msg.sender][position];
+        Legacy storage l = legacyNFTs[nftId];
+
+        // Remove Legacy from list of Legacies for that testator
+        if (position < legacies[msg.sender].length - 1)
+            // It's not last element, we move last element to position
+            legacies[msg.sender][position] = legacies[msg.sender][
+                legacies[msg.sender].length - 1
+            ];
+        legacies[msg.sender].pop();
+
+        // Burn NFT
+        _burn(nftId);
+
+        // Emit event
         emit RemoveLegacy(
             block.timestamp,
             msg.sender,
@@ -175,16 +208,8 @@ contract Expir3 is
             l.nftId
         );
 
-        //burn NFT
-        _burn(l.nftId);
-
-        // Remove Legacy from list of Legacies for that testator
-        if (position < legacies[msg.sender].length - 1)
-            // It's not last element, we move last element to position
-            legacies[msg.sender][position] = legacies[msg.sender][
-                legacies[msg.sender].length - 1
-            ];
-        legacies[msg.sender].pop();
+        // Clear storage for that Legacy
+        delete legacyNFTs[nftId];
     }
 
     /** @notice Function for Testator to check in
@@ -192,30 +217,30 @@ contract Expir3 is
      */
     function checkIn() public {
         if (legacies[msg.sender].length == 0) revert NoLegacyRegistered();
+
         uint256 prevCheckIn = executionDay[msg.sender];
         executionDay[msg.sender] = getDay(block.timestamp - 1 days);
-        // Remove testator from previous checkIn's list
-        if (
-            executionList[prevCheckIn][executionList[prevCheckIn].length - 1] ==
-            msg.sender
-        ) {
-            // msg.sender is the last item in the list, we just remove it
-            executionList[prevCheckIn].pop();
-        } else {
-            // msg.sender is not the last item, so we search it and replace with the last item
-            for (
-                uint256 i = 0;
-                i < executionList[prevCheckIn].length - 1;
-                i++
-            ) {
-                if (executionList[prevCheckIn][i] == msg.sender) {
-                    executionList[prevCheckIn][i] = executionList[prevCheckIn][
-                        executionList[prevCheckIn].length - 1
-                    ];
-                    executionList[prevCheckIn].pop();
+
+        uint256 len = executionList[prevCheckIn].length;
+        if (len > 0) {
+            // Remove testator from previous checkIn's list
+            if (executionList[prevCheckIn][len - 1] == msg.sender) {
+                // Remove the last item for it is msg.sender
+                executionList[prevCheckIn].pop();
+            } else {
+                // msg.sender is not the last item, so we search it and replace with the last item
+                for (uint256 i = 0; i < len - 1; i++) {
+                    if (executionList[prevCheckIn][i] == msg.sender) {
+                        executionList[prevCheckIn][i] = executionList[
+                            prevCheckIn
+                        ][len - 1];
+                        break;
+                    }
                 }
+                executionList[prevCheckIn].pop();
             }
         }
+
         // Add testator to new checkIn's list
         executionList[executionDay[msg.sender]].push(msg.sender);
 
@@ -230,7 +255,8 @@ contract Expir3 is
     /** @notice Function to execute a Testator's will */
     function executeWill(address testator) internal onlyOwner {
         for (uint256 i = 0; i < legacies[testator].length; i++) {
-            Legacy storage legacy = legacies[testator][i];
+            uint256 nftId = legacies[testator][i];
+            Legacy storage legacy = legacyNFTs[nftId];
             bool transferred;
             if (legacy.tokenId == 0) {
                 // ERC20
@@ -277,13 +303,39 @@ contract Expir3 is
             }
             // Burn the NFT of the beneficiary
             _burn(legacy.nftId);
+            // Free storage used by Legacy
+            delete legacyNFTs[nftId];
         }
+        // Free storage used by testator's list of legacies
         delete legacies[testator];
-
-        //burn NFTs
     }
 
     /** -- Overrides for NFTs --  */
+
+    /** @notice This makes the NFTs on-chain SVGs */
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        require(_exists(tokenId), "Expir3: Non-Existent Token ID");
+        Legacy storage l = legacyNFTs[tokenId];
+        return
+            TokenURIDescriptor.tokenURI(
+                l.testator,
+                l.token,
+                l.beneficiary,
+                l.amount,
+                l.tokenId,
+                l.nftId,
+                name(),
+                symbol()
+            );
+    }
+
+    /** @notice Make the NFTs Non-Transferrable */
     function _beforeTokenTransfer(
         address from,
         address to,
@@ -293,6 +345,8 @@ contract Expir3 is
             revert NonTransferrableToken();
         super._beforeTokenTransfer(from, to, tokenId);
     }
+
+    /** -- Helpers to check functionality -- */
 
     /** @notice Function to execute a certain day's wills */
     function executeDay(uint256 day) public nonReentrant {
@@ -311,7 +365,8 @@ contract Expir3 is
         return executionList[day].length > 0;
     }
 
-    // Keepers logic
+    /** -- Keepers Logic -- */
+
     function fakeUpkeep() public view returns (bool) {
         // check if there are wills to execute
         //uint256 currentDay = getDay(block.timestamp);
@@ -329,27 +384,6 @@ contract Expir3 is
         presentDay = getDay(block.timestamp - 1 days);
         executeDay(presentDay);
         //  }
-    }
-
-    /** @notice return token URI of Legacy reciever */
-
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseTokenUri;
-    }
-
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        virtual
-        override
-        returns (string memory)
-    {
-        require(
-            _exists(tokenId),
-            "ERC721Metadata: URI query for nonexistent token"
-        );
-
-        return baseTokenUri;
     }
 
     // TODO: Frontend needs to ask for approve of all tokens to bequeath
