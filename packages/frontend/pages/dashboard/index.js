@@ -20,13 +20,12 @@ const index = () => {
   const { data: signerData } = useSigner();
   const [loading, setLoading] = useState(false);
 
-  const contractConfig = {
-
-    addressOrName: "0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B",
-    contractInterface: contractStuff.abi,
-
-  };
   // Not working
+  // const contractConfig = {
+  //   addressOrName: "0xBEB62460cD1773DFa240Ae23cC1BC4C089FAA52B",
+  //   contractInterface: contractStuff.abi,
+  // };
+  
   const {
     data: addLegacy,
     write: add,
