@@ -35,7 +35,7 @@ const index = () => {
   const { data: execListData } = useContractRead({
     ...contractConfig,
     functionName: "executionList",
-    args: [320, 0],
+    args: [321, 0],
   });
 
   const { data: nftData } = useContractRead({
@@ -63,7 +63,7 @@ const index = () => {
     console.log("LOGS");
     // console.log("Legacies[0] (NFT TokenId):", legaciesData.toString());
     console.log("Execution Day:", execDay?.toString());
-    console.log("Execution List:", execListData.toString());
+   // console.log("Execution List:", execListData.toString());
     console.log("legacyNFTs:", nftData);
     console.log("___________");
   }, []);
