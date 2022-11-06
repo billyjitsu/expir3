@@ -1,19 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
   useAccount,
-  useContract,
   useContractRead,
-  usePrepareContractWrite,
   useContractWrite,
-  useWaitForTransaction,
-  useProvider,
-  useSigner,
 } from "wagmi";
 
 //contract location
-import contractStuff from "../contracts/contract.json";
-import mockToken from "../contracts/mockToken.json";
-/* @Dev MockToken Contract Address  0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C */
+import { contractConfig, contractWriteConfig } from "../utils/constants";
+
+// const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
+// const mockTokenAddress = '0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C';
 
 const modal = () => {
   const { address: testatorAddress } = useAccount();
@@ -25,8 +21,6 @@ const modal = () => {
   const [amount, setAmount] = useState(0);
   const [tokenId, setTokenId] = useState(0);
 
-  const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
-  const mockTokenAddress = '0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C';
 
   const {
     data: addLegacyData,
@@ -35,9 +29,7 @@ const modal = () => {
     isSuccess: isAddStarted,
     error: addError,
   } = useContractWrite({
-    mode: "recklesslyUnprepared",
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractWriteConfig,
     functionName: "addLegacy",
     args: [
       tokenAddress,
@@ -50,9 +42,7 @@ const modal = () => {
   const {
     data: checkLegacies
   } = useContractRead({
-    // mode: "recklesslyUnprepared",
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractConfig,
     functionName: "legacies",
     args: [
       testatorAddress,
@@ -69,12 +59,10 @@ const modal = () => {
     isSuccess: isApprovalStarted,
     error: approvalError,
   } = useContractWrite({
-    mode: "recklesslyUnprepared",
-    address: mockTokenAddress,
-    abi: mockToken.abi,
+    ...contractWriteConfig,
     functionName: "approve",
     args: [
-      contractAddress,
+      contractConfig.address,
       amount,
     ],
   });
@@ -89,7 +77,7 @@ const modal = () => {
     //should approve token first before adding legacy
     // we need to access the token contract ABIs for each token
     approveToken();
-   await addLegacy();
+    await addLegacy();
     hide();
   }
 

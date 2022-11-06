@@ -1,91 +1,68 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   useAccount,
-  useContract,
   useContractRead,
-  usePrepareContractWrite,
-  useContractWrite,
-  useWaitForTransaction,
-  useProvider,
   useSigner,
 } from "wagmi";
 import Modal from "../../components/modal";
+import LegacyList from "../../components/legacyList";
 import React, { useState, useEffect } from "react";
 
 //contract location
-import contractStuff from "../../contracts/contract.json";
+// import contractStuff from "../../contracts/contract.json";
+import { contractConfig } from "../../utils/constants";
 
 const index = () => {
-  const { account, isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const { data: signerData } = useSigner();
   const [loading, setLoading] = useState(false);
 
-  const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
-
-  // Not working
-  // const contractConfig = {
-  //   addressOrName: "0x767a79d21Fd9eC7222379340d77c63FE758f4433",
-  //   contractInterface: contractStuff.abi,
-  // };
-
-  // ALL DATA HARDCODED
+  // const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
 
   // Check If any Beneficiaries
   const { data: legaciesData } = useContractRead({
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractConfig,
     functionName: "legacies",
-    watch: true,
-    chainId: 5,
-    args: ["0xe2b8651bF50913057fF47FC4f02A8e12146083B8", 0],
+    args: [address, 0],
   });
 
   const { data: execDay } = useContractRead({
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractConfig,
     functionName: "executionDay",
-    watch: true,
-    chainId: 5,
-    args: ["0xe2b8651bF50913057fF47FC4f02A8e12146083B8"],
+    args: [address],
   });
 
   const { data: execListData } = useContractRead({
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractConfig,
     functionName: "executionList",
-    watch: true,
-    chainId: 5,
     args: [320, 0],
   });
 
   const { data: nftData } = useContractRead({
-    address: contractAddress,
-    abi: contractStuff.abi,
+    ...contractConfig,
     functionName: "legacyNFTs",
-    watch: true,
-    chainId: 5,
     args: [1],
   });
 
   const renderListOfBeneficiaries = (values) => {
-    return values.map(value => 
-    <p className="text-xs">{value.toString()}</p>
+    return values.map(value =>
+      <p className="text-xs">{value.toString()}</p>
     )
-  } 
+  }
 
   //trying to figure out how to filter out the extra data
   // const renderListOfBeneficiaries2 = (values) => {
   //   return values.filter(value => 
   //     <p className="text-xs">{value.toString()}</p>)
-    
+
   // } 
 
 
   //test effect:
   useEffect(() => {
     console.log("LOGS");
-    console.log("Legacies Total NFTS Minted", legaciesData.toString());
-    console.log("Execution Day:", execDay.toString());
+    // console.log("Legacies[0] (NFT TokenId):", legaciesData.toString());
+    console.log("Execution Day:", execDay?.toString());
     console.log("Execution List:", execListData.toString());
     console.log("legacyNFTs:", nftData);
     console.log("___________");
@@ -111,6 +88,8 @@ const index = () => {
               Schedule automatic payouts to accounts of your choice as your will
               or as a fall back.
             </p>
+
+            {/* <LegacyList /> */}
             <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
               <h3 className="font-semibold">Token</h3>
               <h3 className="font-semibold">Beneficiary</h3>
@@ -119,10 +98,13 @@ const index = () => {
               <h3 className="font-semibold">Delete</h3>
             </div>
 
-            <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
-              {renderListOfBeneficiaries(nftData)}
-            </div>
-            
+            {isConnected && address &&
+              <LegacyList />
+              // <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
+              //   {renderListOfBeneficiaries(nftData)}
+              //   <h3>{address}</h3>
+              // </div>
+            }
 
 
             {/* TEST BUTTON */}

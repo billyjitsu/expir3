@@ -29,7 +29,7 @@ struct Legacy {
     address beneficiary;
     uint256 amount;
     uint256 tokenId;
-    uint256 nftId;
+    // uint256 nftId;
 }
 
 // deathwish
@@ -126,6 +126,11 @@ contract Expir3 is
 
     /** --- External  Functions --- */
 
+    /** @notice Helper to see amount of legacies for user */
+    function legacyCount(address testator) public view returns (uint256) {
+        return legacies[testator].length;
+    }
+
     /** @notice Function for Testator to add Legacy */
     /** NFT Tokens with tokenID 0 will not work */
     // TODO: Add payment
@@ -143,7 +148,7 @@ contract Expir3 is
 
         // Mint the NFT to the beneficiary
         uint256 nftId = _tokenIdCounter.current();
-        
+
         _safeMint(beneficiary, nftId);
         _tokenIdCounter.increment();
 
@@ -157,8 +162,7 @@ contract Expir3 is
             token,
             beneficiary,
             amount,
-            tokenId,
-            nftId
+            tokenId //, nftId
         );
 
         // Add Legacy to testator list
@@ -206,7 +210,7 @@ contract Expir3 is
             l.beneficiary,
             l.amount,
             l.tokenId,
-            l.nftId
+            nftId
         );
 
         // Clear storage for that Legacy
@@ -299,11 +303,11 @@ contract Expir3 is
                     legacy.token,
                     legacy.amount,
                     legacy.tokenId,
-                    legacy.nftId
+                    nftId
                 );
             }
             // Burn the NFT of the beneficiary
-            _burn(legacy.nftId);
+            _burn(nftId);
             // Free storage used by Legacy
             delete legacyNFTs[nftId];
         }
@@ -330,7 +334,7 @@ contract Expir3 is
                 l.beneficiary,
                 l.amount,
                 l.tokenId,
-                l.nftId,
+                tokenId,
                 name(),
                 symbol()
             );
