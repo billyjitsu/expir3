@@ -127,8 +127,8 @@ contract Expir3 is
     /** --- External  Functions --- */
 
     /** @notice Helper to see amount of legacies for user */
-    function legacyCount() public view returns (uint256) {
-        return legacies[msg.sender].length;
+    function legacyCount(address testator) public view returns (uint256) {
+        return legacies[testator].length;
     }
 
     /** @notice Function for Testator to add Legacy */
