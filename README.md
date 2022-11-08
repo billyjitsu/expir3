@@ -44,5 +44,6 @@ You can remove all beneficiaries with the `remove beneficiaries` button that wil
 ## Issues
 
 Currently working on being to remove indivial beneficiaries
+
 Drop down options for existing tokens in wallet
 

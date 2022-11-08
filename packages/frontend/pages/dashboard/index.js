@@ -1,6 +1,8 @@
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   useAccount,
+  usePrepareContractWrite,
+  useContractWrite,
   useContractRead,
   useSigner,
 } from "wagmi";
@@ -10,7 +12,7 @@ import React, { useState, useEffect } from "react";
 
 //contract location
 // import contractStuff from "../../contracts/contract.json";
-import { contractConfig } from "../../utils/constants";
+import { contractConfig, contractAddress, contractAbi } from "../../utils/constants";
 
 const index = () => {
   const { address, isConnected } = useAccount();
@@ -43,6 +45,23 @@ const index = () => {
     functionName: "legacyNFTs",
     args: [1],
   });
+
+  // used address and ABI (not using recklessly unprepared)
+  const { config: checkInTask, error: checkInError } = usePrepareContractWrite({
+    address: contractAddress,
+    abi: contractAbi,
+    functionName: "checkIn",
+    onError(error) {
+      console.log("Error", error);
+    },
+  });
+
+  const {
+    data: checkInData,
+    isCheckInDataLoading,
+    write: checkIn,
+  } = useContractWrite(checkInTask);
+
 
   const renderListOfBeneficiaries = (values) => {
     return values.map(value =>
@@ -84,10 +103,15 @@ const index = () => {
             <h2 className="text-3xl font-semibold self-start max-w-50">
               Register your beneficiary
             </h2>
+            
             <p className="text-xl self-start mt-2 w-11/12 text-gray-400 border-b-2 border-gray-300 pb-3">
               Schedule automatic payouts to accounts of your choice as your will
               or as a fall back.
             </p>
+            <button 
+            onClick={() => checkIn?.()}
+            className="bg-blue-600 hover:bg-blue-700 text-white text-bold rounded-full px-12 py-2 mt-6 sm:w-auto"
+            >Check In</button>
 
             {/* <LegacyList /> */}
             <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
