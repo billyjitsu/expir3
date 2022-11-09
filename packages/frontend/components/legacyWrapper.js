@@ -23,7 +23,7 @@ const legacyWrapper = (props) => {
     return (
         <>
             {isConnected && address && nftId &&
-                <LegacyData nftId={nftId} />
+                <LegacyData nftId={nftId} position={position} />
             }
         </>
     )
