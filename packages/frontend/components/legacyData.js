@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useAccount, useContractRead } from "wagmi";
-import { contractConfig } from "../utils/constants";
+import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import { contractConfig, contractRecklessWriteConfig } from "../utils/constants";
 
 const legacyData = (props) => {
-    const { nftId } = props;
+    const { nftId, position } = props;
     const { address, isConnected } = useAccount();
     const [legacy, setLegacy] = useState({});
     const [tokenType, setTokenType] = useState('');
@@ -13,6 +13,20 @@ const legacyData = (props) => {
         ...contractConfig,
         functionName: "legacyNFTs",
         args: [nftId],
+    });
+
+    const {
+        data: removeLegacyData,
+        write: removeLegacy,
+        isLoading: isRemoveLoading,
+        isSuccess: isRemoveStarted,
+        error: removeLegacyError,
+    } = useContractWrite({
+        ...contractRecklessWriteConfig,
+        functionName: "removeLegacy",
+        args: [
+            position,
+        ],
     });
 
     useEffect(() => {
@@ -36,7 +50,10 @@ const legacyData = (props) => {
                     <h3 className="justify-self-center">{legacy.amount?.toString()}</h3>
                     <h3 className="justify-self-center">{legacy.tokenId?.toString()}</h3>
                     <h3 className="justify-self-center">{tokenType}</h3>
-                    <button className="justify-self-center text-white bg-black hover:bg-red-500 text-bold rounded-full px-6 sm:w-auto">X</button>
+                    <button className="justify-self-center text-white bg-black hover:bg-red-500 text-bold rounded-full px-6 sm:w-auto"
+                        onClick={() => removeLegacy()}>
+                        X
+                    </button>
                 </div>
             }
         </>
