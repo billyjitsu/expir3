@@ -41,7 +41,7 @@ const index = () => {
   //test effect:
   useEffect(() => {
     console.log("LOGS");
-    console.log("Legacy Count:", legacyCountData.toString());
+    console.log("Legacy Count:", legacyCountData?.toString());
     // console.log("Execution Day:", execDay?.toString());
     // console.log("Execution List:", execListData.toString());
     // console.log("legacyNFTs:", nftData);
