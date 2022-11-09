@@ -7,7 +7,9 @@ import {
   useSigner,
 } from "wagmi";
 import Modal from "../../components/modal";
+import CheckIn from "../../components/checkIn";
 import LegacyList from "../../components/legacyList";
+
 import React, { useState, useEffect } from "react";
 
 //contract location
@@ -18,74 +20,39 @@ const index = () => {
   const { address, isConnected } = useAccount();
   const { data: signerData } = useSigner();
   const [loading, setLoading] = useState(false);
+  const [legacyCount, setLegacyCount] = useState(0);
 
   // const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
 
   // Check If any Beneficiaries
-  const { data: legaciesData } = useContractRead({
+  const { data: legacyCountData } = useContractRead({
     ...contractConfig,
-    functionName: "legacies",
-    args: [address, 0],
-  });
-
-  const { data: execDay } = useContractRead({
-    ...contractConfig,
-    functionName: "executionDay",
+    functionName: "legacyCount",
     args: [address],
   });
 
-  const { data: execListData } = useContractRead({
-    ...contractConfig,
-    functionName: "executionList",
-    args: [321, 0],
-  });
-
-  const { data: nftData } = useContractRead({
-    ...contractConfig,
-    functionName: "legacyNFTs",
-    args: [1],
-  });
-
-  // used address and ABI (not using recklessly unprepared)
-  const { config: checkInTask, error: checkInError } = usePrepareContractWrite({
-    address: contractAddress,
-    abi: contractAbi,
-    functionName: "checkIn",
-    onError(error) {
-      console.log("Error", error);
-    },
-  });
-
-  const {
-    data: checkInData,
-    isCheckInDataLoading,
-    write: checkIn,
-  } = useContractWrite(checkInTask);
-
-
-  const renderListOfBeneficiaries = (values) => {
-    return values.map(value =>
-      <p className="text-xs">{value.toString()}</p>
-    )
-  }
-
-  //trying to figure out how to filter out the extra data
-  // const renderListOfBeneficiaries2 = (values) => {
-  //   return values.filter(value => 
-  //     <p className="text-xs">{value.toString()}</p>)
-
-  // } 
+  // const { data: execListData } = useContractRead({
+  //   ...contractConfig,
+  //   functionName: "executionList",
+  //   args: [321, 0],
+  // });
 
 
   //test effect:
   useEffect(() => {
     console.log("LOGS");
-    // console.log("Legacies[0] (NFT TokenId):", legaciesData.toString());
-    console.log("Execution Day:", execDay?.toString());
-   // console.log("Execution List:", execListData.toString());
-    console.log("legacyNFTs:", nftData);
+    console.log("Legacy Count:", legacyCountData.toString());
+    // console.log("Execution Day:", execDay?.toString());
+    // console.log("Execution List:", execListData.toString());
+    // console.log("legacyNFTs:", nftData);
     console.log("___________");
   }, []);
+
+  useEffect(() => {
+    if (!legacyCountData) return;
+    setLegacyCount(legacyCountData.toNumber())
+  }, [legacyCountData])
+
 
   return (
     <div className="h-screen flex flex-col">
@@ -100,34 +67,33 @@ const index = () => {
       <main className="flex flex-col items-center justify-center grow mx-5">
         {isConnected ? (
           <>
+            {address && legacyCount > 0 && <CheckIn />}
+
             <h2 className="text-3xl font-semibold self-start max-w-50">
               Register your beneficiary
             </h2>
-            
+
             <p className="text-xl self-start mt-2 w-11/12 text-gray-400 border-b-2 border-gray-300 pb-3">
               Schedule automatic payouts to accounts of your choice as your will
               or as a fall back.
             </p>
-            <button 
-            onClick={() => checkIn?.()}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-bold rounded-full px-12 py-2 mt-6 sm:w-auto"
-            >Check In</button>
+            {/* <button
+              onClick={() => checkIn?.()}
+              className="bg-blue-600 hover:bg-blue-700 text-white text-bold rounded-full px-12 py-2 mt-6 sm:w-auto"
+            >Check In</button> */}
 
             {/* <LegacyList /> */}
-            <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
+            <div className="grid grid-cols-6 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5 justify-items-center">
               <h3 className="font-semibold">Token</h3>
               <h3 className="font-semibold">Beneficiary</h3>
               <h3 className="font-semibold">Amount</h3>
               <h3 className="font-semibold">Token ID</h3>
+              <h3 className="font-semibold">Type</h3>
               <h3 className="font-semibold">Delete</h3>
             </div>
 
             {isConnected && address &&
               <LegacyList />
-              // <div className="grid grid-cols-5 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
-              //   {renderListOfBeneficiaries(nftData)}
-              //   <h3>{address}</h3>
-              // </div>
             }
 
 

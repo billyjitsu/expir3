@@ -12,8 +12,13 @@ export const contractConfig = {
     chainId: 5
 }
 
-export const contractWriteConfig = {
+export const contractRecklessWriteConfig = {
     address: contractAddress,
     abi: contractAbi,
     mode: "recklesslyUnprepared",
+}
+
+export const contractWriteConfig = {
+    address: contractAddress,
+    abi: contractAbi,
 }

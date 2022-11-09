@@ -6,7 +6,7 @@ import {
 } from "wagmi";
 
 //contract location
-import { contractConfig, contractWriteConfig } from "../utils/constants";
+import { contractConfig, contractRecklessWriteConfig } from "../utils/constants";
 
 // const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
 // const mockTokenAddress = '0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C';
@@ -21,6 +21,8 @@ const modal = () => {
   const [amount, setAmount] = useState(0);
   const [tokenId, setTokenId] = useState(0);
 
+  const [legacyCount, setLegacyCount] = useState(0);
+
 
   const {
     data: addLegacyData,
@@ -29,7 +31,7 @@ const modal = () => {
     isSuccess: isAddStarted,
     error: addError,
   } = useContractWrite({
-    ...contractWriteConfig,
+    ...contractRecklessWriteConfig,
     functionName: "addLegacy",
     args: [
       tokenAddress,
@@ -40,13 +42,12 @@ const modal = () => {
   });
 
   const {
-    data: checkLegacies
+    data: legacyCountData
   } = useContractRead({
     ...contractConfig,
-    functionName: "legacies",
+    functionName: "legacyCount",
     args: [
       testatorAddress,
-      0,
     ],
   });
 
@@ -59,7 +60,7 @@ const modal = () => {
     isSuccess: isApprovalStarted,
     error: approvalError,
   } = useContractWrite({
-    ...contractWriteConfig,
+    ...contractRecklessWriteConfig,
     functionName: "approve",
     args: [
       contractConfig.address,
@@ -68,10 +69,9 @@ const modal = () => {
   });
 
   useEffect(() => {
-    if (checkLegacies == undefined) {
-      show()
-    }
-  }, [])
+    if (legacyCountData == undefined) return;
+    setLegacyCount(legacyCountData?.toNumber());
+  }, [legacyCountData])
 
   const handleSubmit = async () => {
     //should approve token first before adding legacy
@@ -93,46 +93,46 @@ const modal = () => {
     console.log("submit");
   }
 
-  console.log("He has legacies", checkLegacies);
+  // console.log("He has legacies", checkLegacies);
 
   return (
     <>
-      <button className="text-2xl font-semibold bg-black text-white p-3 self-start mx-5 mt-12 border-none rounded-md"
+      <button className="text-2xl font-semibold bg-black text-white py-3 px-16 self-start mx-5 mt-12 border-none rounded-full"
         onClick={show}>
         Add new beneficiary
       </button>
       {showModal &&
         <div className="fixed top-0 left-0 bottom-0 right-0 bg-black/[0.5] flex justify-center text-center z-1">
-          <div className="bg-white py-2 px-8 rounded-md h-fit text-black self-center">
-            {checkLegacies == undefined ?
+          <div className="bg-white pt-2 pb-8 px-10 rounded-3xl h-fit text-black self-center">
+            {legacyCount == 0 ?
               <h2 className=" text-xl font-bold p-5">Please add new beneficiary first</h2>
               :
               <h2 className=" text-xl font-bold p-5">Add new beneficiary</h2>
             }
             <div className="mb-4 flex flex-col">
               <label htmlFor="token" className="label mb-0 -mt-2 pt-4 pl-3 leading-tighter text-gray-400 cursor-text text-sm self-start">Token Address</label>
-              <input className="input border border-gray-400 appearance-none rounded w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600"
+              <input className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600"
                 id="token" type="text" autoFocus
                 onChange={(e) => setTokenAddress(e.target.value)} />
             </div>
             <div className="mb-4 flex flex-col">
               <label htmlFor="beneficiary" className="label mb-0 -mt-2 pt-4 pl-3 leading-tighter text-gray-400 cursor-text text-sm self-start">Beneficiary</label>
-              <input className="input border border-gray-400 appearance-none rounded w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="beneficiary" type="text"
+              <input className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="beneficiary" type="text"
                 onChange={(e) => setBeneficiary(e.target.value)} />
             </div>
             <div className="mb-4 flex flex-col">
               <label htmlFor="amount" className="label mb-0 -mt-2 pt-4 pl-3 leading-tighter text-gray-400 cursor-text text-sm self-start">Amount</label>
-              <input className="input border border-gray-400 appearance-none rounded w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="amount" type="text"
+              <input className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="amount" type="text"
                 onChange={(e) => setAmount(e.target.value)} />
             </div>
             <div className="mb-4 flex flex-col">
               <label htmlFor="tokenId" className="label mb-0 -mt-2 pt-4 pl-3 leading-tighter text-gray-400 cursor-text text-sm self-start">Token ID</label>
-              <input className="input border border-gray-400 appearance-none rounded w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="tokenId" type="text"
+              <input className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600" id="tokenId" type="text"
                 onChange={(e) => setTokenId(e.target.value)} />
             </div>
-            <button className="text-xl font-semibold bg-black text-white py-3 px-5 self-start mx-5 border-none rounded-md"
+            <button className="text-lg font-semibold bg-black text-white py-3 px-8 self-start mx-3 border-none rounded-full"
               onClick={() => handleSubmit()}>Submit</button>
-            <button className="text-xl font-semibold bg-gray-300 py-3 px-5 self-start mx-5 border-none rounded-md"
+            <button className="text-lg font-semibold bg-gray-200 py-3 px-8 self-start mx-3 border-none rounded-full"
               onClick={hide}>Close</button>
           </div>
         </div>
