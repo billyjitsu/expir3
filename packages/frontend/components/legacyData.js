@@ -54,6 +54,13 @@ const legacyData = (props) => {
                         onClick={() => removeLegacy()}>
                         X
                     </button>
+                    {isRemoveLoading &&
+                        <div className="fixed top-0 left-0 bottom-0 right-0 bg-black/[0.5] flex justify-center text-center z-1">
+                            <div className="bg-white pt-2 pb-8 px-10 rounded-3xl h-fit text-black self-center">
+                                <h2 className=" text-xl font-bold p-5">Removing Legacy...</h2>
+                            </div>
+                        </div>
+                    }
                 </div>
             }
         </>
