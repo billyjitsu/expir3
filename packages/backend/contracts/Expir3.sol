@@ -415,20 +415,28 @@ contract Expir3 is
         override
         returns (bool upkeepNeeded, bytes memory tempData)
     {
+        //Currently working
         upkeepNeeded = fakeUpkeep();
         tempData = "";
 
         //possible grace period
-        uint256 currentDay = getDay(block.timestamp - 1 days);
-        upkeepNeeded = willsToExecuteInDay(currentDay); //(beneficiary != address(0))
+        // uint256 currentDay = getDay(block.timestamp - 1 days);
+        // upkeepNeeded = willsToExecuteInDay(currentDay); //(beneficiary != address(0))
     }
 
     //Called by Chainlink Keepers to handle work
     function performUpkeep(bytes calldata) external override {
-        uint256 presentDay;
-        //convert to day
-        presentDay = getDay(block.timestamp - 1 days);
-        executeDay(presentDay);
+
+        // Need to execute this logic on the user side to claim
+
+        //Allow users to claim their tokens on day
+        // get that array logic working
+
+
+        // uint256 presentDay;
+        // //convert to day
+        // presentDay = getDay(block.timestamp - 1 days);
+        // executeDay(presentDay);
     }
 
     //function to pull out token
@@ -442,4 +450,32 @@ contract Expir3 is
             "Unable to transfer"
         );
     }
+
+    /* Not working for some reason */
+
+    //function to pull out erc1155
+    // function withdraw1155NFT(IERC1155 _tokenAddress, uint256 _id, uint256 _amount) public onlyOwner {
+    //     require(
+    //         _tokenAddress.safeTransferFrom
+    //         (   address(this),
+    //             msg.sender,
+    //             _id,
+    //             _amount,
+    //             0x0
+    //         ),
+    //         "Unable to transfer"
+    //     );
+    // }
+
+    // //function to pull out erc1155
+    // function withdraw721NFT(IERC721 _tokenAddress, uint256 _id) public onlyOwner {
+    //     require(
+    //         _tokenAddress.safeTransferFrom
+    //         (   address(this),
+    //             msg.sender,
+    //             _id
+    //         ),
+    //         "Unable to transfer"
+    //     );
+    // }
 }
