@@ -451,31 +451,33 @@ contract Expir3 is
         );
     }
 
-    /* Not working for some reason */
+    /* Not working for some reason with the require() */
+
+   // function to pull out erc1155
+    function withdraw1155NFT(IERC1155 _tokenAddress, uint256 _id, uint256 _amount) public onlyOwner {
+      //  require(
+            _tokenAddress.safeTransferFrom
+            (   address(this),
+                msg.sender,
+                _id,
+                _amount,
+                ""
+            );
+      //      "Unable to transfer"
+      //  );
+    }
 
     //function to pull out erc1155
-    // function withdraw1155NFT(IERC1155 _tokenAddress, uint256 _id, uint256 _amount) public onlyOwner {
-    //     require(
-    //         _tokenAddress.safeTransferFrom
-    //         (   address(this),
-    //             msg.sender,
-    //             _id,
-    //             _amount,
-    //             0x0
-    //         ),
-    //         "Unable to transfer"
-    //     );
-    // }
+    function withdraw721NFT(IERC721 _tokenAddress, uint256 _id) public onlyOwner {
+       // require(
+            _tokenAddress.transferFrom(address(this), msg.sender,_id );
+       //     "Unable to transfer"
+      //  );
+    }
 
-    // //function to pull out erc1155
-    // function withdraw721NFT(IERC721 _tokenAddress, uint256 _id) public onlyOwner {
-    //     require(
-    //         _tokenAddress.safeTransferFrom
-    //         (   address(this),
-    //             msg.sender,
-    //             _id
-    //         ),
-    //         "Unable to transfer"
-    //     );
-    // }
+    function withdraw() external onlyOwner {
+        (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(success);
+    }
+    
 }
