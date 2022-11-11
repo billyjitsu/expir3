@@ -432,7 +432,7 @@ contract Expir3 is
         //Allow users to claim their tokens on day
             // get that array logic working
 
-
+        fakeExecute();
         // uint256 presentDay;
         // //convert to day
         // presentDay = getDay(block.timestamp - 1 days);
