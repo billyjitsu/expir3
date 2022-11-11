@@ -20,6 +20,7 @@ This project is built with the following open source libraries, frameworks and l
 | [WAGMI](https://wagmi.sh/) | A set of React Hooks for Web3 |
 | [RainbowKit](https://www.rainbowkit.com/docs/introduction) | RainbowKit is a React library that makes it easy to add wallet connection to your dapp. |
 | [ChainlinkAutomation] |(https://automation.chain.link/) Automatic Execution service for your smart contracts
+| [QuickNode] |(https://www.quicknode.com/) The RPC provider used to deploy and connect our contract to the front end DAPP
 
 
 ## Details
@@ -38,12 +39,14 @@ On the model pop up you will fill in the following
 
 Upon approving and submitting the beneficiary, you must `check in yearly` to keep the assets in current wallet or the Chainling Automation will execute the transaction
 
-You can remove all beneficiaries with the `remove beneficiaries` button that will clear out all beneficiaries and execution data.
+When you set the beneficiary, an NFT with the details is sent the wallet address letting them know about the details.  When the contract executes or the beneficiary is removed the NFT will be burned.
+
+You can remove all beneficiaries with the `remove beneficiaries` button that will clear out beneficiaries and execution data.
 
 
-## Issues
+## To Work on
 
-Currently working on being to remove indivial beneficiaries
-
-Drop down options for existing tokens in wallet
+Drop down options for existing tokens in wallet (Pull wallet assets)
+Give a grace period before execution
+Send a reminder to email/calendar when check in date is coming up
 

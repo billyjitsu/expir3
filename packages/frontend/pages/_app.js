@@ -35,7 +35,11 @@ const hardhatChain = {
 const { chains, provider } = configureChains(
   [chain.goerli, hardhatChain],
   // [alchemyProvider({ alchemyId }), publicProvider()]
-  [jsonRpcProvider({ rpc: () => ({ http: 'https://rpc.ankr.com/eth_goerli' }) }), publicProvider()]
+  [
+    // jsonRpcProvider({ rpc: () => ({ http: 'https://rpc.ankr.com/eth_goerli' }) }),
+    jsonRpcProvider({ rpc: () => ({ http: 'https://sleek-tame-scion.ethereum-goerli.discover.quiknode.pro/9208ac6fba75750c1560965428e3be7efa6d281c/' }) }),
+  // publicProvider()
+  ]
 );
 
 const { connectors } = getDefaultWallets({
