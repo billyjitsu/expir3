@@ -62,6 +62,10 @@ contract Expir3 is
     /** @dev Mapping of all the Legacies by nftId */
     mapping(uint256 => Legacy) public legacyNFTs;
 
+    // New test
+    /** @dev Current solution to have benefits be claimable */
+    bool public availableToClaim;
+
     /** --- Events --- */
 
     /** @notice A testator registered some Legacy  */
@@ -380,15 +384,28 @@ contract Expir3 is
         return booleanCheck;
     }
 
-    // Keepers logic
+    // Keepers logic - to turn to internal for testing
     function fakeExecute() public {
+        
         // adjust to execute same day as checkin
         //execute today
         uint256 presentDay;
         //convert to day
         presentDay = getDay(block.timestamp - 1 days);
         executeDay(presentDay);
+
+        //turn off once it has been claimed - if you missed the day you have to wait the year with this logic
+        availableToClaim = false;
         //  }
+    }
+
+    function toggleClaimStatus() public {  // to be internal if keepers
+        availableToClaim = !availableToClaim;
+    }
+
+    function claim() external {
+        if(availableToClaim == true) revert Unclaimable();
+        fakeExecute();
     }
 
     // TODO: Frontend needs to ask for approve of all tokens to bequeath
@@ -405,6 +422,9 @@ contract Expir3 is
 
     /** @dev Error for NFT Transfer Attemp */
     error NonTransferrableToken();
+
+    /** @dev Error for Not Claimable Yet*/
+    error Unclaimable();
 
     // //Called by Chainlink Keepers to check if work needs to be done
     function checkUpkeep(
@@ -432,7 +452,7 @@ contract Expir3 is
         //Allow users to claim their tokens on day
             // get that array logic working
 
-        fakeExecute();
+        //fakeExecute();
         // uint256 presentDay;
         // //convert to day
         // presentDay = getDay(block.timestamp - 1 days);
