@@ -258,7 +258,7 @@ contract Expir3 is
     }
 
     /** @notice Function to execute a Testator's will */
-    function executeWill(address testator) internal onlyOwner {
+    function executeWill(address testator) internal {
         for (uint256 i = 0; i < legacies[testator].length; i++) {
             uint256 nftId = legacies[testator][i];
             Legacy storage legacy = legacyNFTs[nftId];
@@ -315,6 +315,23 @@ contract Expir3 is
         delete legacies[testator];
     }
 
+    /** @notice Function to execute a certain day's wills */
+    function executeDay(uint256 day) internal nonReentrant {
+        //external onlyOwner
+        if (executionList[day].length == 0) return; // No wills to execute on this day
+        for (uint256 i = 0; i < executionList[day].length; i++) {
+            if (executionList[day][i] != address(0)) {
+                executeWill(executionList[day][i]);
+            }
+        }
+        delete executionList[day];
+    }
+
+    /** @notice Function to know if there are wills to execute in a day */
+    function willsToExecuteInDay(uint256 day) public view returns (bool) {
+        return executionList[day].length > 0;
+    }
+
     /** -- Overrides for NFTs --  */
 
     /** @notice This makes the NFTs on-chain SVGs */
@@ -351,37 +368,51 @@ contract Expir3 is
         super._beforeTokenTransfer(from, to, tokenId);
     }
 
-    /** -- Helpers to check functionality -- */
-
-    /** @notice Function to execute a certain day's wills */
-    function executeDay(uint256 day) public nonReentrant {
-        //external onlyOwner
-        if (executionList[day].length == 0) return; // No wills to execute on this day
-        for (uint256 i = 0; i < executionList[day].length; i++) {
-            if (executionList[day][i] != address(0)) {
-                executeWill(executionList[day][i]);
-            }
-        }
-        delete executionList[day];
-    }
-
-    /** @notice Function to know if there are wills to execute in a day */
-    function willsToExecuteInDay(uint256 day) public view returns (bool) {
-        return executionList[day].length > 0;
-    }
-
     /** -- Keepers Logic -- */
 
-    function fakeUpkeep() public view returns (bool) {
-        // check if there are wills to execute
-        //uint256 currentDay = getDay(block.timestamp);
-        uint256 currentDay = getDay(block.timestamp - 1 days);
-        bool booleanCheck = willsToExecuteInDay(currentDay);
-        return booleanCheck;
-    }
+    // function fakeUpkeep() public view returns (bool) {
+    //     // check if there are wills to execute
+    //     //uint256 currentDay = getDay(block.timestamp);
+    //     uint256 currentDay = getDay(block.timestamp - 1 days);
+    //     bool booleanCheck = willsToExecuteInDay(currentDay);
+    //     return booleanCheck;
+    // }
 
     // Keepers logic
-    function fakeExecute() public {
+    // function fakeExecute() public {
+    //     // adjust to execute same day as checkin
+    //     //execute today
+    //     uint256 presentDay;
+    //     //convert to day
+    //     presentDay = getDay(block.timestamp - 1 days);
+    //     executeDay(presentDay);
+    //     //  }
+    // }
+
+    // //Called by Chainlink Keepers to check if work needs to be done
+    function checkUpkeep(
+        bytes calldata /*checkData */
+    )
+        external
+        view
+        override
+        returns (bool upkeepNeeded, bytes memory tempData)
+    {
+        uint256 currentDay = getDay(block.timestamp - 1 days);
+        upkeepNeeded = willsToExecuteInDay(currentDay);
+
+        tempData = "";
+
+    }
+
+    //Called by Chainlink Keepers to handle work
+    function performUpkeep(bytes calldata) external override {
+
+        // Need to execute this logic on the user side to claim
+
+        //Allow users to claim their tokens on day
+            // get that array logic working
+
         // adjust to execute same day as checkin
         //execute today
         uint256 presentDay;
@@ -391,9 +422,6 @@ contract Expir3 is
         //  }
     }
 
-    // TODO: Frontend needs to ask for approve of all tokens to bequeath
-
-    // TODO: Dust Cleaner
 
     /** --- Errors --- */
 
@@ -406,40 +434,12 @@ contract Expir3 is
     /** @dev Error for NFT Transfer Attemp */
     error NonTransferrableToken();
 
-    // //Called by Chainlink Keepers to check if work needs to be done
-    function checkUpkeep(
-        bytes calldata /*checkData */
-    )
-        external
-        view
-        override
-        returns (bool upkeepNeeded, bytes memory tempData)
-    {
-        //Currently working
-        upkeepNeeded = fakeUpkeep();
-        tempData = "";
 
-        //possible grace period
-        // uint256 currentDay = getDay(block.timestamp - 1 days);
-        // upkeepNeeded = willsToExecuteInDay(currentDay); //(beneficiary != address(0))
-    }
+    /** --- Extra Features --- */
 
-    //Called by Chainlink Keepers to handle work
-    function performUpkeep(bytes calldata) external override {
+    // TODO: Frontend needs to ask for approve of all tokens to bequeath
 
-        // Need to execute this logic on the user side to claim
-
-        //Allow users to claim their tokens on day
-            // get that array logic working
-
-        fakeExecute();
-        // uint256 presentDay;
-        // //convert to day
-        // presentDay = getDay(block.timestamp - 1 days);
-        // executeDay(presentDay);
-    }
-
-    //function to pull out token
+    /** @dev function to recover ERC20 tokens */
     function withdrawToken(IERC20 _tokenAddress) public onlyOwner {
         // require( _tokenAddress.transfer(msg.sender,  _tokenAddress.balanceOf(address(this))), "Unable to transfer");
         require(
@@ -453,7 +453,7 @@ contract Expir3 is
 
     /* Not working for some reason with the require() */
 
-   // function to pull out erc1155
+    /** @dev function to recover ERC1155 tokens */
     function withdraw1155NFT(IERC1155 _tokenAddress, uint256 _id, uint256 _amount) public onlyOwner {
       //  require(
             _tokenAddress.safeTransferFrom
@@ -467,7 +467,7 @@ contract Expir3 is
       //  );
     }
 
-    //function to pull out erc1155
+    /** @dev function to recover ERC721 tokens */
     function withdraw721NFT(IERC721 _tokenAddress, uint256 _id) public onlyOwner {
        // require(
             _tokenAddress.transferFrom(address(this), msg.sender,_id );
@@ -475,6 +475,7 @@ contract Expir3 is
       //  );
     }
 
+    /** @dev function to recover ETH */
     function withdraw() external onlyOwner {
         (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
         require(success);
