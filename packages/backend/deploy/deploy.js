@@ -18,7 +18,18 @@ async function main() {
   // console.log("Template Contract deployed to:", web3.address);
   // const receipt = await web3.deployTransaction.wait();
   // console.log("gasUsed:" , receipt.gasUsed);
- 
+
+  /*
+  const Template = await hre.ethers.getContractFactory("My1155");
+  const contract = await Template.deploy();
+
+  await contract.deployed();
+
+  console.log("My1155 Contract deployed to:", contract.address);
+  const receipt2 = await contract.deployTransaction.wait();
+  console.log("gasUsed:" , receipt2.gasUsed);
+ */
+
 
   const Template = await hre.ethers.getContractFactory("Expir3");
   const contract = await Template.deploy();
@@ -28,6 +39,7 @@ async function main() {
   console.log("Expir3 Contract deployed to:", contract.address);
   const receipt2 = await contract.deployTransaction.wait();
   console.log("gasUsed:" , receipt2.gasUsed);
+  
 }
 
 // We recommend this pattern to be able to use async/await everywhere
