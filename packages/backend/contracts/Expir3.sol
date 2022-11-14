@@ -370,26 +370,7 @@ contract Expir3 is
 
     /** -- Keepers Logic -- */
 
-    // function fakeUpkeep() public view returns (bool) {
-    //     // check if there are wills to execute
-    //     //uint256 currentDay = getDay(block.timestamp);
-    //     uint256 currentDay = getDay(block.timestamp - 1 days);
-    //     bool booleanCheck = willsToExecuteInDay(currentDay);
-    //     return booleanCheck;
-    // }
-
-    // Keepers logic
-    // function fakeExecute() public {
-    //     // adjust to execute same day as checkin
-    //     //execute today
-    //     uint256 presentDay;
-    //     //convert to day
-    //     presentDay = getDay(block.timestamp - 1 days);
-    //     executeDay(presentDay);
-    //     //  }
-    // }
-
-    // //Called by Chainlink Keepers to check if work needs to be done
+    /** @notice Called by Chainlink Keepers to check if work needs to be done */
     function checkUpkeep(
         bytes calldata /*checkData */
     )
@@ -400,28 +381,24 @@ contract Expir3 is
     {
         uint256 currentDay = getDay(block.timestamp - 1 days);
         upkeepNeeded = willsToExecuteInDay(currentDay);
-
         tempData = "";
-
     }
 
-    //Called by Chainlink Keepers to handle work
+    /** @notice Perform the wil distribution of the day */
     function performUpkeep(bytes calldata) external override {
+        //double check upkeep
 
-        // Need to execute this logic on the user side to claim
-
-        //Allow users to claim their tokens on day
-            // get that array logic working
-
-        // adjust to execute same day as checkin
-        //execute today
-        uint256 presentDay;
         //convert to day
-        presentDay = getDay(block.timestamp - 1 days);
-        executeDay(presentDay);
-        //  }
-    }
+        uint256 presentDay = getDay(block.timestamp - 1 days);
 
+        // In production remove the day to run in 1 year
+        // presentDay = getDay(block.timestamp);
+
+        //Verify logic is still true
+        if (willsToExecuteInDay(presentDay)) {
+            executeDay(presentDay);  
+        }  
+    }
 
     /** --- Errors --- */
 
