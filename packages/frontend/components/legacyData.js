@@ -41,14 +41,18 @@ const legacyData = (props) => {
             else setTokenType('ERC1155')
         }
     }, [data])
-    
+
     return (
         <>
             {data &&
                 <div className="grid grid-cols-6 grid-row-flow gap-4 w-full mx-auto mt-5 ml-5">
                     <h3 className="truncate">{legacy?.token?.toString()}</h3>
                     <h3 className="truncate">{legacy?.beneficiary?.toString()}</h3>
-                    <h3 className="justify-self-center">{legacy?.amount?.toString()}</h3>
+                    {tokenType == 'ERC20' ?
+                        <h3 className="justify-self-center truncate">{ethers.utils.formatEther(legacy?.amount).toString()}</h3>
+                        :
+                        <h3 className="justify-self-center">{legacy?.amount?.toString()}</h3>
+                    }
                     <h3 className="justify-self-center">{legacy?.tokenId?.toString()}</h3>
                     <h3 className="justify-self-center">{tokenType}</h3>
                     <button className="justify-self-center text-white bg-black hover:bg-red-500 text-bold rounded-full px-6 sm:w-auto"
