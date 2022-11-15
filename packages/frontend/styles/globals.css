@@ -22,3 +22,7 @@ a {
 button {
   cursor: pointer;
 }
+
+input:disabled {
+  border-color: red;
+}

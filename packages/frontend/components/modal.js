@@ -25,6 +25,8 @@ const modal = () => {
   const [amount, setAmount] = useState(0);
   const [tokenId, setTokenId] = useState(0);
 
+  const [tokenStandard, setTokenStandard] = useState("ERC20");
+
   const [legacyCount, setLegacyCount] = useState(0);
 
   const {
@@ -99,13 +101,33 @@ const modal = () => {
     setLegacyCount(legacyCountData?.toNumber());
   }, [legacyCountData]);
 
+  const handleAmountChange = async (e) => {
+    // if (tokenStandard == "ERC20") {
+    //   setAmount(ethers.utils.parseEther(e.target.value))
+    // } else 
+    if (tokenStandard == "ERC721") {
+      setAmount(0);
+    } else {
+      setAmount(e.target.value);
+    }
+  }
+
+  const handleTokenIdChange = async (e) => {
+    if (tokenStandard == "ERC20") {
+      setTokenId(0);
+    } else {
+      setTokenId(e.target.value);
+    }
+  }
+
   const handleSubmit = async () => {
     //should approve token first before adding legacy
     // we need to access the token contract ABIs for each token
     /*need to check the tokenID to see if we need know which call*/
 
     if (tokenId == 0) {
-     approveToken();
+      setAmount(ethers.utils.parseEther(amount.toString()));
+      approveToken();
     } else {
       approveTokenNFT();
     }
@@ -125,7 +147,9 @@ const modal = () => {
     console.log("submit");
   };
 
-  // console.log("He has legacies", checkLegacies);
+  console.log("Current Token Standard", tokenStandard);
+  console.log("Current Token Amount", amount);
+  console.log("Current Token Id", tokenId);
 
   return (
     <>
@@ -145,6 +169,14 @@ const modal = () => {
             ) : (
               <h2 className=" text-xl font-bold p-5">Add new beneficiary</h2>
             )}
+            <div className="mb-4 flex flex-col">
+              <select onChange={(e) => { setTokenStandard(e.target.value) }}>
+                <option value="ERC20">ERC20</option>
+                <option value="ERC721">ERC721</option>
+                <option value="ERC1155">ERC1155</option>
+              </select>
+            </div>
+            <p className="text-gray-400 mb-4 text-xs">Select correct token type from dropdown above.</p>
             <div className="mb-4 flex flex-col">
               <label
                 htmlFor="token"
@@ -185,7 +217,9 @@ const modal = () => {
                 className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600"
                 id="amount"
                 type="text"
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => handleAmountChange(e)}
+                disabled={tokenStandard == "ERC721"}
+                placeholder="1 token by default for ERC721"
               />
             </div>
             <div className="mb-4 flex flex-col">
@@ -199,9 +233,12 @@ const modal = () => {
                 className="input border border-gray-400 appearance-none rounded-xl w-full px-3 py-3 pt-3 pb-2 focus focus:border-indigo-600 focus:outline-none active:outline-none active:border-indigo-600"
                 id="tokenId"
                 type="text"
-                onChange={(e) => setTokenId(e.target.value)}
+                onChange={(e) => handleTokenIdChange(e)}
+                disabled={tokenStandard == "ERC20"}
+                placeholder="0 by default for ERC20"
               />
             </div>
+            <p className="text-red-400 mb-6 text-xs">Disabled inputs are highlighted in red.</p>
             <button
               className="text-lg font-semibold bg-black text-white py-3 px-8 self-start mx-3 border-none rounded-full"
               onClick={() => handleSubmit()}
