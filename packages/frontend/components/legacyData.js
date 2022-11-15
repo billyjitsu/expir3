@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useAccount, useContractRead, useContractWrite } from "wagmi";
 import { contractConfig, contractRecklessWriteConfig } from "../utils/constants";
+import { ethers } from "ethers";
 
 const legacyData = (props) => {
     const { nftId, position } = props;
@@ -40,7 +41,7 @@ const legacyData = (props) => {
             else setTokenType('ERC1155')
         }
     }, [data])
-
+    
     return (
         <>
             {data &&

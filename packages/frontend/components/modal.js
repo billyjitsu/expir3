@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import { ethers } from "ethers";
 
 //contract location
 import {
   contractConfig,
   contractRecklessWriteConfig,
+  ercTokenAbi,
+  NFTABI,
 } from "../utils/constants";
 
 // const contractAddress = '0x767a79d21Fd9eC7222379340d77c63FE758f4433';
@@ -33,6 +36,7 @@ const modal = () => {
   } = useContractWrite({
     ...contractRecklessWriteConfig,
     functionName: "addLegacy",
+    // args: [tokenAddress, beneficiary, ethers.utils.parseEther(amount.toString()), tokenId],
     args: [tokenAddress, beneficiary, amount, tokenId],
   });
 
@@ -51,7 +55,8 @@ const modal = () => {
     isSuccess: isApprovalStarted,
     error: approvalError,
   } = useContractWrite({
-    ...contractRecklessWriteConfig,
+    address: tokenAddress,
+    abi: ercTokenAbi,
     functionName: "approve",
     args: [contractConfig.address, amount],
   });
@@ -63,38 +68,31 @@ const modal = () => {
     error: approvalNFTError,
   } = useContractWrite({
     //address hardcoded for now (need stat variable)
-    address: "0x316Cd70a2Bbf381A9b0fa326a76E5E6411bAa454",
-    abi: [
-      {
-        name: "setApprovalForAll",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
+    address: tokenAddress,
+    abi: NFTABI,
     functionName: "setApprovalForAll",
     args: [contractConfig.address, true],
   });
 
-  //for ERC1155 NFT approval
-  const {
-    data: approvalNFT1155Data,
-    write: approveToken1155NFT,
-    error: approvalNFT1155Error,
-  } = useContractWrite({
-    //address hardcoded for now (need stat variable)
-    address: "0xb9f1208fE950eD6b8Ed9202BFA694eaf934eaC64",
-    abi: [
-      {
-        name: "setApprovalForAll",
-        outputs: [],
-        stateMutability: "nonpayable",
-        type: "function",
-      },
-    ],
-    functionName: "setApprovalForAll",
-    args: [contractConfig.address, true],
-  });
+  // //for ERC1155 NFT approval
+  // const {
+  //   data: approvalNFT1155Data,
+  //   write: approveToken1155NFT,
+  //   error: approvalNFT1155Error,
+  // } = useContractWrite({
+  //   //address hardcoded for now (need stat variable)
+  //   address: "0xb9f1208fE950eD6b8Ed9202BFA694eaf934eaC64",
+  //   abi: [
+  //     {
+  //       name: "setApprovalForAll",
+  //       outputs: [],
+  //       stateMutability: "nonpayable",
+  //       type: "function",
+  //     },
+  //   ],
+  //   functionName: "setApprovalForAll",
+  //   args: [contractConfig.address, true],
+  // });
 
   useEffect(() => {
     if (legacyCountData == undefined) return;
@@ -105,8 +103,12 @@ const modal = () => {
     //should approve token first before adding legacy
     // we need to access the token contract ABIs for each token
     /*need to check the tokenID to see if we need know which call*/
-    approveToken();
-    // approveTokenNFT();
+
+    if (tokenId == 0) {
+     approveToken();
+    } else {
+      approveTokenNFT();
+    }
     await addLegacy();
     hide();
   };
