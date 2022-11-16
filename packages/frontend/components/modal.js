@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useAccount, useContractRead, useContractWrite } from "wagmi";
+import { useAccount, useContractRead, useContractWrite, useWaitForTransaction } from "wagmi";
 import { ethers } from "ethers";
 
 //contract location
@@ -19,6 +19,7 @@ const modal = () => {
   const { address: testatorAddress } = useAccount();
 
   const [showModal, setShowModal] = useState(false);
+  const [showMintingModal, setShowMintingModal] = useState(false);
 
   const [tokenAddress, setTokenAddress] = useState("");
   const [beneficiary, setBeneficiary] = useState("");
@@ -41,6 +42,8 @@ const modal = () => {
     // args: [tokenAddress, beneficiary, ethers.utils.parseEther(amount.toString()), tokenId],
     args: [tokenAddress, beneficiary, amount, tokenId],
   });
+
+  const { data: receipt, isSuccess: isLegacyMintingSuccess } = useWaitForTransaction({ hash: addLegacyData?.hash, });
 
   const { data: legacyCountData } = useContractRead({
     ...contractConfig,
@@ -133,6 +136,7 @@ const modal = () => {
     }
     await addLegacy();
     hide();
+    setShowMintingModal(true);
   };
 
   const show = () => {
@@ -147,9 +151,7 @@ const modal = () => {
     console.log("submit");
   };
 
-  console.log("Current Token Standard", tokenStandard);
-  console.log("Current Token Amount", amount);
-  console.log("Current Token Id", tokenId);
+  console.log("This is the transaction receipt", receipt)
 
   return (
     <>
@@ -251,6 +253,35 @@ const modal = () => {
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+      {showMintingModal && (
+        <div className="fixed top-0 left-0 bottom-0 right-0 bg-black/[0.5] flex justify-center text-center z-1">
+          <div className="bg-white pt-2 pb-8 px-10 rounded-3xl h-fit text-black self-center">
+            {isLegacyMintingSuccess ? (
+              <>
+                <h2 className=" text-xl font-bold p-5">
+                  Legacy successfully created!
+                </h2>
+                <a href={`https://goerli.etherscan.io/tx/${receipt.transactionHash}`}>
+                  <button
+                    className="text-lg font-semibold bg-gray-200 py-3 px-8 self-start mx-3 border-none rounded-full">
+                    View Txn on Etherscan
+                  </button>
+                </a>
+                <button
+                  className="text-lg font-semibold bg-gray-200 py-3 px-8 self-start mx-3 border-none rounded-full"
+                  onClick={() => { setShowMintingModal(false) }}
+                >
+                  Close
+                </button>
+              </>
+            ) : (
+              <h2 className=" text-xl font-bold p-5">
+                Creating legacy...
+              </h2>
+            )}
           </div>
         </div>
       )}
