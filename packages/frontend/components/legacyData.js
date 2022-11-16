@@ -33,7 +33,7 @@ const legacyData = (props) => {
     useEffect(() => {
         // console.log(`LegacyNFTs[${nftId}]: ${data?.toString()}`)
         setLegacy(data);
-        const amount = data?.amount?.toNumber();
+        const amount = data?.amount?.toString();
         const tokenId = data?.tokenId?.toNumber();
         if (tokenId === 0) setTokenType('ERC20')
         else {
