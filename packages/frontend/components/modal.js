@@ -104,14 +104,15 @@ const modal = () => {
     setLegacyCount(legacyCountData?.toNumber());
   }, [legacyCountData]);
 
+
   const handleAmountChange = async (e) => {
     // if (tokenStandard == "ERC20") {
     //   setAmount(ethers.utils.parseEther(e.target.value))
     // } else 
     if (tokenStandard == "ERC721") {
-      setAmount(0);
+      setAmount(1);
     } else {
-      setAmount(e.target.value);
+      setAmount(e?.target.value);
     }
   }
 
@@ -119,7 +120,7 @@ const modal = () => {
     if (tokenStandard == "ERC20") {
       setTokenId(0);
     } else {
-      setTokenId(e.target.value);
+      setTokenId(e?.target.value);
     }
   }
 
@@ -135,6 +136,13 @@ const modal = () => {
       approveTokenNFT();
     }
     await addLegacy();
+    //
+    setTokenAddress("");
+    setBeneficiary("");
+    setAmount(1);
+    setTokenId(0);
+    setTokenAddress("ERC20");
+    //
     hide();
     setShowMintingModal(true);
   };
