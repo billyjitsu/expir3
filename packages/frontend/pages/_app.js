@@ -33,11 +33,11 @@ const hardhatChain = {
 };
 
 const { chains, provider } = configureChains(
-  [chain.goerli, hardhatChain],
+  [chain.polygonMumbai],
   // [alchemyProvider({ alchemyId }), publicProvider()]
   [
     // jsonRpcProvider({ rpc: () => ({ http: 'https://rpc.ankr.com/eth_goerli' }) }),
-    jsonRpcProvider({ rpc: () => ({ http: 'https://sleek-tame-scion.ethereum-goerli.discover.quiknode.pro/9208ac6fba75750c1560965428e3be7efa6d281c/' }) }),
+    jsonRpcProvider({ rpc: () => ({ http: 'https://dimensional-patient-arrow.matic-testnet.discover.quiknode.pro/b0d1a3580a1576c880015164cf6cb5ded2496f25/' }) }),
   // publicProvider()
   ]
 );

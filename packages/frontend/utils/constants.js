@@ -4,10 +4,11 @@ import erc20abi from "../contracts/mockToken.json";
 export const contractAbi = contractStuff.abi;
 export const ercTokenAbi = erc20abi.abi;
 
-export const contractAddress = '0x48825bB786e993F6A6d6101e0ebaff48C3BAAb63';
-export const mockTokenAddress = '0xB7DfFdb405688508e5Ddc593eBAaE64b25a9BB0C';
-export const ERC721MockAddress = '0x316Cd70a2Bbf381A9b0fa326a76E5E6411bAa454';
-export const ERC1155MockAddress = '0xb9f1208fE950eD6b8Ed9202BFA694eaf934eaC64';
+//On Mumbai
+export const contractAddress = '0xe3d2683A12f341220d2826a617C53c6aA0182f2C';
+export const mockTokenAddress = '0xb2A6879Ebce0d76F7d4E29771a9b4035f165d74d';
+export const ERC721MockAddress = '0x9AfFDF8A6b23f42d25EEFF5d79d2b3DEf5092D0E';
+export const ERC1155MockAddress = '0xAB45D1cDDf5e32781071c94127c519510819B422';
 
 export const contractConfig = {
     address: contractAddress,
