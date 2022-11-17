@@ -6,7 +6,7 @@ import {
   useContractRead,
   useSigner,
 } from "wagmi";
-import Modal from "../../components/modal";
+import LegacyAddModal from "../../components/legacyAddModal";
 import CheckIn from "../../components/checkIn";
 import LegacyList from "../../components/legacyList";
 
@@ -127,7 +127,7 @@ const index = () => {
 
             {/* //////////// */}
 
-            <Modal />
+            <LegacyAddModal />
             {/* <button className="text-2xl font-semibold bg-black text-white p-3 self-start mx-5 mt-12 border-none rounded-md"
               onClick={() => setShowModal(true)}>
               <a href="/dashboard">Add new beneficiary</a>
