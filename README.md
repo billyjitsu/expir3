@@ -12,7 +12,7 @@ Use it was a living will or as a backup for a lost private keys, trust that your
  | [Contract Address](https://mumbai.polygonscan.com/address/0xe3d2683A12f341220d2826a617C53c6aA0182f2C) | 0xe3d2683A12f341220d2826a617C53c6aA0182f2C |
  | [mockTokenAddress](https://mumbai.polygonscan.com/address/0xb2A6879Ebce0d76F7d4E29771a9b4035f165d74d#writeContract) | 0xb2A6879Ebce0d76F7d4E29771a9b4035f165d74d |
  | [ERC721MockAddress](https://mumbai.polygonscan.com/address/0x9AfFDF8A6b23f42d25EEFF5d79d2b3DEf5092D0E#writeContract) | 0x9AfFDF8A6b23f42d25EEFF5d79d2b3DEf5092D0E |
- | [ERC1155MockAddress](https://mumbai.polygonscan.com/address/0xAB45D1cDDf5e32781071c94127c519510819B422#writeContract) | 0xAB45D1cDDf5e32781071c94127c519510819B422 |
+ | [ERC1155MockAddress](https://mumbai.polygonscan.com/address/0xd556f4297208909a11c4f3Ee0353C06211B0d040#writeContract) | 0xd556f4297208909a11c4f3Ee0353C06211B0d040 |
  | [Chainlink Automation](https://automation.chain.link/mumbai/83612179419742895942894754336124772009671274433691093920740323009965453050319) | Live Automation |
 
 
