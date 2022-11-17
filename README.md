@@ -30,8 +30,8 @@ This project is built with the following open source libraries, frameworks and l
 | ------ | ------ Included Libraries ------ |
 | [WAGMI](https://wagmi.sh/) | A set of React Hooks for Web3 |
 | [RainbowKit](https://www.rainbowkit.com/docs/introduction) | RainbowKit is a React library that makes it easy to add wallet connection to your dapp. |
-| [ChainlinkAutomation] |(https://automation.chain.link/) Automatic Execution service for your smart contracts
-| [QuickNode] |(https://www.quicknode.com/) The RPC provider used to deploy and connect our contract to the front end DAPP
+| [ChainlinkAutomation](https://automation.chain.link/) | Automatic Execution service for your smart contracts
+| [QuickNode](https://www.quicknode.com/) | The RPC provider used to deploy and connect our contract to the front end DAPP
 
 
 ## Details
