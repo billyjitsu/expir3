@@ -35,9 +35,9 @@ const legacyData = (props) => {
         setLegacy(data);
         const amount = data?.amount?.toString();
         const tokenId = data?.tokenId?.toNumber();
-        if (tokenId === 0) setTokenType('ERC20')
+        if (tokenId == 0) setTokenType('ERC20')
         else {
-            if (amount === 0) setTokenType('ERC721')
+            if (amount == 0) setTokenType('ERC721')
             else setTokenType('ERC1155')
         }
     }, [data])

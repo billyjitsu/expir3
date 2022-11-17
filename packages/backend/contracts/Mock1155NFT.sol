@@ -7,13 +7,13 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract My1155 is ERC1155, Ownable {
     constructor() ERC1155("https://Mocktoken") {}
 
-    function setURI(string memory newuri) public onlyOwner {
+    function setURI(string memory newuri) public {
         _setURI(newuri);
     }
 
     function mint()
         public
-        onlyOwner
+        
     {
         _mint(msg.sender, 1, 1, "");
     }
