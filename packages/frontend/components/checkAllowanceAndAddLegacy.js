@@ -21,25 +21,31 @@ const checkAllowanceAndAddLegacy = (props) => {
 
     const { data, isError, isSuccess, isLoading, status } = useContractRead({
         address: tokenAddress,
-        abi: tokenStandard === "ERC20" ? ercTokenAbi : contractAbi,
+        abi: tokenStandard === "ERC20" ? ercTokenAbi : NFTABI,
         functionName: tokenStandard === "ERC20" ? "allowance" : "isApprovedForAll",
         watch: true,
         args: [testatorAddress, contractAddress],
     })
 
     useEffect(() => {
-        if (!data) return;
-        if (tokenStandard === "ERC20") {
-            const bigAmount = BigNumber.from(amount);
-            const bigAllowance = data;
-            setAllowance(bigAmount.add(bigAllowance).toString());
+        if (status === "error") {
+            console.log("Error checking allowance/approvals");
+            setAskApproval(true);
+            return;
         }
-        else {
-            console.log(`check data: ${JSON.stringify(data)}`);
-            setIsApproved(data);
+        if (status === "success") {
+            if (tokenStandard === "ERC20") {
+                const bigAmount = BigNumber.from(amount);
+                const bigAllowance = data;
+                setAllowance(bigAmount.add(bigAllowance).toString());
+            }
+            else {
+                console.log(`check data: ${JSON.stringify(data)}`);
+                setIsApproved(data);
+            }
+            setAskApproval(true);
         }
-        setAskApproval(true);
-    }, [data])
+    }, [status])
 
     useEffect(() => {
         // clearForm();
